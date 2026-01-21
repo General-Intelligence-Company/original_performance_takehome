@@ -434,6 +434,306 @@ class KernelBuilder:
 
         self.instrs.append({"flow": [("pause",)]})
 
+    def build_kernel_staggered_pipeline(
+        self, forest_height: int, n_nodes: int, batch_size: int, rounds: int
+    ):
+        """
+        Staggered multi-round pipeline: Multiple batch groups at different rounds.
+
+        Key insight: If Group A is at round N step X, and Group B is at round N-1 step Y,
+        they have no data dependency! We can execute them in parallel.
+
+        Structure: 2 super-groups (SG0, SG1), each with 3 batches.
+        - SG0 processes rounds 0, 2, 4, 6, ...
+        - SG1 processes rounds 1, 3, 5, 7, ...
+        When SG0 finishes round 0 and moves to round 2, SG1 starts round 1.
+        This keeps both super-groups active with different data.
+        """
+        tmp1 = self.alloc_scratch("tmp1")
+        tmp2 = self.alloc_scratch("tmp2")
+        tmp3 = self.alloc_scratch("tmp3")
+
+        init_vars = ["rounds", "n_nodes", "batch_size", "forest_height",
+                     "forest_values_p", "inp_indices_p", "inp_values_p"]
+        for v in init_vars:
+            self.alloc_scratch(v, 1)
+        for i, v in enumerate(init_vars):
+            self.add("load", ("const", tmp1, i))
+            self.add("load", ("load", self.scratch[v], tmp1))
+
+        # 2 super-groups of 3 batches each = 6 batches total per outer iter
+        NUM_BATCHES = 6
+        SG_SIZE = 3  # batches per super-group
+
+        # Allocate registers for all batches
+        v_idx = [self.alloc_scratch(f"v_idx_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_val = [self.alloc_scratch(f"v_val_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_node = [self.alloc_scratch(f"v_node_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_tmp1 = [self.alloc_scratch(f"v_tmp1_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_tmp2 = [self.alloc_scratch(f"v_tmp2_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_cond = [self.alloc_scratch(f"v_cond_{i}", VLEN) for i in range(NUM_BATCHES)]
+        addr_temps = [[self.alloc_scratch(f"addr_tmp_{i}_{j}") for j in range(VLEN)] for i in range(NUM_BATCHES)]
+        idx_addr = [self.alloc_scratch(f"idx_addr_{i}") for i in range(NUM_BATCHES)]
+        val_addr = [self.alloc_scratch(f"val_addr_{i}") for i in range(NUM_BATCHES)]
+
+        v_one = self.alloc_vconst(1)
+
+        hash_consts = []
+        madd_stages = {}
+        for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
+            hash_consts.append((self.alloc_vconst(val1), self.alloc_vconst(val3)))
+            if op1 == '+' and op2 == '+' and op3 == '<<':
+                mult = 1 + (1 << val3)
+                madd_stages[hi] = (self.alloc_vconst(mult), self.alloc_vconst(val1))
+
+        v_n_nodes = self.alloc_scratch("v_n_nodes", VLEN)
+        self.add("valu", ("vbroadcast", v_n_nodes, self.scratch["n_nodes"]))
+
+        n_vec_iters = batch_size // VLEN
+        batch_offset_consts = [self.scratch_const(vi * VLEN) for vi in range(n_vec_iters)]
+
+        self.add("flow", ("pause",))
+
+        # Super-groups: SG0 = batches 0-2, SG1 = batches 3-5
+        SG0 = list(range(SG_SIZE))
+        SG1 = list(range(SG_SIZE, NUM_BATCHES))
+
+        def emit_xor(batches):
+            """Emit XOR for given batches"""
+            self.instrs.append({"valu": [("^", v_val[b], v_val[b], v_node[b]) for b in batches]})
+
+        def emit_hash_stage(batches, hi, extra_load=None, extra_alu=None):
+            """Emit hash stage hi for batches, optionally with overlapped load/alu"""
+            op1, val1, op2, op3, val3 = HASH_STAGES[hi]
+            c1, c3 = hash_consts[hi]
+
+            if hi in madd_stages:
+                mult_addr, const_addr = madd_stages[hi]
+                instr = {"valu": [("multiply_add", v_val[b], v_val[b], mult_addr, const_addr) for b in batches]}
+                if extra_load:
+                    instr["load"] = extra_load
+                if extra_alu:
+                    instr["alu"] = extra_alu
+                self.instrs.append(instr)
+            else:
+                instr = {"valu": [(op1, v_tmp1[b], v_val[b], c1) for b in batches] +
+                                 [(op3, v_tmp2[b], v_val[b], c3) for b in batches]}
+                if extra_load:
+                    instr["load"] = extra_load
+                if extra_alu:
+                    instr["alu"] = extra_alu
+                self.instrs.append(instr)
+                self.instrs.append({"valu": [(op2, v_val[b], v_tmp1[b], v_tmp2[b]) for b in batches]})
+
+        def emit_index(batches, extra_load=None):
+            """Emit index computation for batches"""
+            self.instrs.append({"valu": [("&", v_tmp1[b], v_val[b], v_one) for b in batches]})
+            instr = {"valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in batches] +
+                             [("+", v_node[b], v_tmp1[b], v_one) for b in batches]}
+            if extra_load:
+                instr["load"] = extra_load
+            self.instrs.append(instr)
+            self.instrs.append({"valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in batches]})
+            self.instrs.append({"valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in batches]})
+            self.instrs.append({"valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in batches]})
+
+        def emit_gather_addrs(batches):
+            """Emit ALU ops to compute gather addresses"""
+            for b in batches:
+                for e in range(0, VLEN, 4):
+                    self.instrs.append({"alu": [("+", addr_temps[b][e+j], self.scratch["forest_values_p"], v_idx[b] + e + j) for j in range(min(4, VLEN-e))]})
+
+        def emit_gather_loads(batches):
+            """Emit loads for node values"""
+            for b in batches:
+                for e in range(0, VLEN, 2):
+                    self.instrs.append({"load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                                 ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]})
+
+        for vec_iter in range(0, n_vec_iters, NUM_BATCHES):
+            offsets = [batch_offset_consts[min(vec_iter + i, n_vec_iters - 1)] for i in range(NUM_BATCHES)]
+
+            # Load initial idx/val for all batches
+            self.instrs.append({
+                "alu": [("+", idx_addr[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
+                       [("+", val_addr[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)]
+            })
+            for i in range(NUM_BATCHES):
+                self.instrs.append({"load": [("vload", v_idx[i], idx_addr[i]), ("vload", v_val[i], val_addr[i])]})
+
+            # Process rounds with staggered pipeline
+            # SG0 does even rounds first, SG1 follows with odd rounds
+
+            for round_idx in range(rounds):
+                is_first = (round_idx == 0)
+                is_last = (round_idx == rounds - 1)
+
+                if is_first:
+                    # Round 0: All indices are 0, broadcast optimization
+                    self.instrs.append({"load": [("load", v_node[0], self.scratch["forest_values_p"])]})
+                    self.instrs.append({"valu": [("vbroadcast", v_node[b], v_node[0]) for b in range(NUM_BATCHES)]})
+                    emit_xor(list(range(NUM_BATCHES)))
+
+                    # Hash all 6 together
+                    for hi in range(len(HASH_STAGES)):
+                        emit_hash_stage(list(range(NUM_BATCHES)), hi)
+
+                    # Index all 6 together
+                    emit_index(list(range(NUM_BATCHES)))
+
+                    # Prepare addresses for next round (SG0 only - it will start round 1)
+                    emit_gather_addrs(SG0)
+                    emit_gather_loads(SG0)
+                else:
+                    # Interleaved processing: SG0 does current, SG1 loads/prepares
+                    # XOR SG0 with its loaded node values
+                    emit_xor(SG0)
+
+                    # Compute SG1's gather addresses while hashing SG0
+                    addr_ops = [(b, e) for b in SG1 for e in range(VLEN)]
+                    load_ops = [(b, e) for b in SG1 for e in range(0, VLEN, 2)]
+                    addr_idx = 0
+                    load_idx = 0
+
+                    for hi in range(len(HASH_STAGES)):
+                        op1, val1, op2, op3, val3 = HASH_STAGES[hi]
+                        c1, c3 = hash_consts[hi]
+
+                        # Overlap ALU/load with SG0's hash
+                        extra_alu = None
+                        extra_load = None
+
+                        if addr_idx < len(addr_ops):
+                            alu_ops = []
+                            for _ in range(min(12, len(addr_ops) - addr_idx)):
+                                b, e = addr_ops[addr_idx]
+                                alu_ops.append(("+", addr_temps[b][e], self.scratch["forest_values_p"], v_idx[b] + e))
+                                addr_idx += 1
+                            extra_alu = alu_ops
+                        elif load_idx < len(load_ops):
+                            b, e = load_ops[load_idx]
+                            extra_load = [("load", v_node[b] + e, addr_temps[b][e]),
+                                         ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                            load_idx += 1
+
+                        emit_hash_stage(SG0, hi, extra_load=extra_load, extra_alu=extra_alu)
+
+                    # Finish any remaining SG1 loads
+                    while load_idx < len(load_ops):
+                        b, e = load_ops[load_idx]
+                        self.instrs.append({"load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                                    ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]})
+                        load_idx += 1
+
+                    # Index SG0 while XORing and starting hash on SG1
+                    emit_xor(SG1)
+
+                    # SG0 index
+                    self.instrs.append({"valu": [("&", v_tmp1[b], v_val[b], v_one) for b in SG0]})
+                    self.instrs.append({"valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in SG0] +
+                                                [("+", v_node[b], v_tmp1[b], v_one) for b in SG0]})
+
+                    # Start SG1 hash stage 0 while finishing SG0 index
+                    self.instrs.append({"valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in SG0] +
+                                                [("multiply_add", v_val[b], v_val[b], madd_stages[0][0], madd_stages[0][1]) for b in SG1]})
+
+                    # Continue SG0 bounds check while SG1 hash stage 1
+                    op1_1, _, op2_1, op3_1, _ = HASH_STAGES[1]
+                    c1_1, c3_1 = hash_consts[1]
+                    self.instrs.append({"valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in SG0] +
+                                                [(op1_1, v_tmp1[b], v_val[b], c1_1) for b in SG1]})
+                    self.instrs.append({"valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in SG0] +
+                                                [(op3_1, v_tmp2[b], v_val[b], c3_1) for b in SG1]})
+
+                    # SG1 hash stage 1 op2, while preparing next round SG0 addresses
+                    next_addr_ops = [(b, e) for b in SG0 for e in range(VLEN)] if not is_last else []
+                    next_load_ops = [(b, e) for b in SG0 for e in range(0, VLEN, 2)] if not is_last else []
+                    addr_idx = 0
+                    load_idx = 0
+
+                    instr = {"valu": [(op2_1, v_val[b], v_tmp1[b], v_tmp2[b]) for b in SG1]}
+                    if addr_idx < len(next_addr_ops):
+                        alu_ops = []
+                        for _ in range(min(12, len(next_addr_ops) - addr_idx)):
+                            b, e = next_addr_ops[addr_idx]
+                            alu_ops.append(("+", addr_temps[b][e], self.scratch["forest_values_p"], v_idx[b] + e))
+                            addr_idx += 1
+                        instr["alu"] = alu_ops
+                    self.instrs.append(instr)
+
+                    # Complete SG1 hash stages 2-5 with next round SG0 address/load overlap
+                    for hi in range(2, len(HASH_STAGES)):
+                        extra_alu = None
+                        extra_load = None
+
+                        if addr_idx < len(next_addr_ops):
+                            alu_ops = []
+                            for _ in range(min(12, len(next_addr_ops) - addr_idx)):
+                                b, e = next_addr_ops[addr_idx]
+                                alu_ops.append(("+", addr_temps[b][e], self.scratch["forest_values_p"], v_idx[b] + e))
+                                addr_idx += 1
+                            extra_alu = alu_ops
+                        elif load_idx < len(next_load_ops):
+                            b, e = next_load_ops[load_idx]
+                            extra_load = [("load", v_node[b] + e, addr_temps[b][e]),
+                                         ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                            load_idx += 1
+
+                        emit_hash_stage(SG1, hi, extra_load=extra_load, extra_alu=extra_alu)
+
+                    # SG1 index with remaining SG0 loads
+                    self.instrs.append({"valu": [("&", v_tmp1[b], v_val[b], v_one) for b in SG1]})
+
+                    instr = {"valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in SG1] +
+                                     [("+", v_node[b], v_tmp1[b], v_one) for b in SG1]}
+                    if load_idx < len(next_load_ops):
+                        b, e = next_load_ops[load_idx]
+                        instr["load"] = [("load", v_node[b] + e, addr_temps[b][e]),
+                                        ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                        load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in SG1]}
+                    if load_idx < len(next_load_ops):
+                        b, e = next_load_ops[load_idx]
+                        instr["load"] = [("load", v_node[b] + e, addr_temps[b][e]),
+                                        ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                        load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in SG1]}
+                    if load_idx < len(next_load_ops):
+                        b, e = next_load_ops[load_idx]
+                        instr["load"] = [("load", v_node[b] + e, addr_temps[b][e]),
+                                        ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                        load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in SG1]}
+                    if load_idx < len(next_load_ops):
+                        b, e = next_load_ops[load_idx]
+                        instr["load"] = [("load", v_node[b] + e, addr_temps[b][e]),
+                                        ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                        load_idx += 1
+                    self.instrs.append(instr)
+
+                    # Finish remaining SG0 loads
+                    while load_idx < len(next_load_ops):
+                        b, e = next_load_ops[load_idx]
+                        self.instrs.append({"load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                                    ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]})
+                        load_idx += 1
+
+                    # Swap SG0 and SG1 for next round
+                    SG0, SG1 = SG1, SG0
+
+            # Store results
+            for b in range(NUM_BATCHES):
+                self.instrs.append({"store": [("vstore", idx_addr[b], v_idx[b]),
+                                              ("vstore", val_addr[b], v_val[b])]})
+
+        self.instrs.append({"flow": [("pause",)]})
+
 
 BASELINE = 147734
 
