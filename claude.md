@@ -2,6 +2,18 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## Git Workflow
+
+Before creating branches or pushing:
+
+1. Check current status: `git status`
+2. List existing branches: `git branch -a`
+3. Check if you have push permissions: `git remote -v`
+4. Work on the main branch first, only create feature branches if explicitly needed
+5. Commit changes locally before attempting to push: `git add . && git commit -m "description"`
+
+**Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
+
 ## Testing
 
 Before running tests, always verify the test setup:
