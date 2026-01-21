@@ -168,12 +168,12 @@ class KernelBuilder:
             for round_idx in range(rounds):
                 is_last_round = (round_idx == rounds - 1)
                 is_first_round = (round_idx == 0)
-                # All-zero: round 0 or wraparound round (all indices are 0)
-                # Only apply broadcast to round 0 (round 11 made things worse)
-                is_all_zero = (round_idx == 0)
+                # Only use all-zero optimization for round 0 (not wraparound) since
+                # wraparound round has A nodes already loaded from previous round
+                is_all_zero = is_first_round
 
                 if is_all_zero:
-                    # OPTIMIZATION: All indices are 0, load once and broadcast
+                    # OPTIMIZATION: Round 0 all indices are 0, load once, broadcast, XOR all
                     # Load forest_values[0] (1 cycle)
                     self.instrs.append({"load": [("load", v_node_val_r[0], self.scratch["forest_values_p"])]})
                     # Broadcast to all 6 batch vectors (1 cycle)
