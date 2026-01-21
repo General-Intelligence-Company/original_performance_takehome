@@ -155,16 +155,33 @@ class KernelBuilder:
                 })
             # For non-first iterations, addresses were computed during previous iteration's stores
 
+            # Load initial idx/val and compute gather addresses in parallel
+            # vloads use load slot, addr computation uses ALU slot
+            addr_ops = [(b, e) for b in range(3) for e in range(VLEN)]  # 24 ops for group A
+            addr_idx = 0
             for i in range(NUM_BATCHES):
-                self.instrs.append({"load": [("vload", v_idx_r[i], idx_addr_r[i]), ("vload", v_val_r[i], val_addr_r[i])]})
+                instr = {"load": [("vload", v_idx_r[i], idx_addr_r[i]), ("vload", v_val_r[i], val_addr_r[i])]}
+                # Overlap ALU addr computation with vloads (after first batch loaded idx values)
+                if i >= 1 and addr_idx < len(addr_ops):
+                    alu_ops = []
+                    for _ in range(min(12, len(addr_ops) - addr_idx)):
+                        b, e = addr_ops[addr_idx]
+                        # Note: v_idx_r[b] might not be loaded yet if b > i-1
+                        # We can only use indices from already-loaded batches
+                        if b < i:  # Batch b already loaded
+                            alu_ops.append(("+", addr_temps_r[b][e], self.scratch["forest_values_p"], v_idx_r[b] + e))
+                            addr_idx += 1
+                    if alu_ops:
+                        instr["alu"] = alu_ops
+                self.instrs.append(instr)
 
-            # Initial gather addresses for group A
-            for start_elem in range(0, VLEN * 3, 12):
+            # Complete remaining gather addresses that couldn't overlap
+            while addr_idx < len(addr_ops):
                 ops = []
-                for idx in range(start_elem, min(start_elem + 12, VLEN * 3)):
-                    b = idx // VLEN
-                    e = idx % VLEN
+                for _ in range(min(12, len(addr_ops) - addr_idx)):
+                    b, e = addr_ops[addr_idx]
                     ops.append(("+", addr_temps_r[b][e], self.scratch["forest_values_p"], v_idx_r[b] + e))
+                    addr_idx += 1
                 self.instrs.append({"alu": ops})
 
             # Round 11 (forest_height+1) is where all indices wrap back to 0
