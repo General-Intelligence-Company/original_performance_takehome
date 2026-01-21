@@ -206,21 +206,38 @@ class KernelBuilder:
                         load_idx += 1
                     self.instrs.append(instr)
 
+                # Index A step 1 + XOR B
                 self.instrs.append({"valu": [("&", v_tmp1_r[b], v_val_r[b], v_one) for b in range(3)] +
                                             [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(3, 6)]})
+                # Index A steps 2-3 (full cycle for A)
                 self.instrs.append({"valu": [("<<", v_tmp2_r[b], v_idx_r[b], v_one) for b in range(3)] +
                                             [("+", v_node_val_r[b], v_tmp1_r[b], v_one) for b in range(3)]})
-                self.instrs.append({"valu": [("+", v_idx_r[b], v_tmp2_r[b], v_node_val_r[b]) for b in range(3)]})
 
-                self.instrs.append({"valu": [("<", v_cond_r[b], v_idx_r[b], v_n_nodes) for b in range(3)]})
-                self.instrs.append({"valu": [("*", v_idx_r[b], v_idx_r[b], v_cond_r[b]) for b in range(3)]})
+                # Get Hash B stage 0 constants
+                c1_0, c3_0 = hash_consts[0]
+                op1_0, _, op2_0, op3_0, _ = HASH_STAGES[0]
+
+                # Index A step 4 + Hash B stage 0 op1
+                self.instrs.append({"valu": [("+", v_idx_r[b], v_tmp2_r[b], v_node_val_r[b]) for b in range(3)] +
+                                            [(op1_0, v_tmp1_r[b], v_val_r[b], c1_0) for b in range(3, 6)]})
+
+                # Bounds A step 1 + Hash B stage 0 op3
+                self.instrs.append({"valu": [("<", v_cond_r[b], v_idx_r[b], v_n_nodes) for b in range(3)] +
+                                            [(op3_0, v_tmp2_r[b], v_val_r[b], c3_0) for b in range(3, 6)]})
+
+                # Bounds A step 2 + Hash B stage 0 op2
+                self.instrs.append({"valu": [("*", v_idx_r[b], v_idx_r[b], v_cond_r[b]) for b in range(3)] +
+                                            [(op2_0, v_val_r[b], v_tmp1_r[b], v_tmp2_r[b]) for b in range(3, 6)]})
 
                 next_addr_ops = [(b, e) for b in range(3) for e in range(VLEN)] if not is_last_round else []
                 next_load_ops = [(b, e) for b in range(3) for e in range(0, VLEN, 2)] if not is_last_round else []
                 addr_idx = 0
                 load_idx = 0
 
+                # Hash B stages 1-5 (stage 0 already done above overlapped with Index/Bounds A)
                 for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
+                    if hi == 0:
+                        continue  # Skip stage 0, already done
                     c1, c3 = hash_consts[hi]
                     instr = {"valu": [(op1, v_tmp1_r[b], v_val_r[b], c1) for b in range(3, 6)] +
                                      [(op3, v_tmp2_r[b], v_val_r[b], c3) for b in range(3, 6)]}
