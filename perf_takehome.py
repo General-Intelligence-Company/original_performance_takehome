@@ -236,9 +236,12 @@ class KernelBuilder:
                 self.instrs.append(ins)
 
         def gth_cmp(lb, ln, cb, cn):
-            """Interleave gather[lb] with cmp[cb]"""
+            """Interleave gather[lb] with cmp[cb]. Uses 3-group batches for better valu packing."""
             tot = ln * VLEN
-            # Build cmp operations (22 total)
+
+            # Build cmp operations for cn groups
+            # Strategy: with n_groups=6, use all 6 valu slots per cycle
+            # cn is the number of groups to process (usually 6, sometimes 2)
             cmp_ops = []
             cmp_ops.append({"valu": [("^", vv[cb]+g*VLEN, vv[cb]+g*VLEN, vn[cb]+g*VLEN) for g in range(cn)]})
             for op1, vc1, op2, op3, vc3 in vh:
@@ -251,7 +254,7 @@ class KernelBuilder:
             cmp_ops.append({"valu": [("<", t1[cb]+g*VLEN, vi[cb]+g*VLEN, v_n) for g in range(cn)]})
             cmp_ops.append({"valu": [("*", vi[cb]+g*VLEN, vi[cb]+g*VLEN, t1[cb]+g*VLEN) for g in range(cn)]})
 
-            # Build gather operations (25 total: 1 alu + 24 loads)
+            # Build gather operations
             gth_ops = []
             alu = [("+", tmp_addr[i], self.scratch["forest_values_p"], vi[lb]+i) for i in range(min(12,tot))]
             gth_ops.append({"alu": alu})
