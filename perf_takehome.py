@@ -180,23 +180,6 @@ class KernelBuilder:
                     self.instrs.append({"valu": [("vbroadcast", v_node_val_r[b], v_node_val_r[0]) for b in range(NUM_BATCHES)]})
                     # XOR all 6 batches at once (1 cycle)
                     self.instrs.append({"valu": [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(NUM_BATCHES)]})
-                elif is_first_round:
-                    group_b_addr_ops = [(b, e) for b in range(3, 6) for e in range(VLEN)]
-                    addr_idx = 0
-                    for b in range(3):
-                        for e in range(0, VLEN, 2):
-                            instr = {"load": [("load", v_node_val_r[b] + e, addr_temps_r[b][e]),
-                                              ("load", v_node_val_r[b] + e + 1, addr_temps_r[b][e + 1])]}
-                            if addr_idx < len(group_b_addr_ops):
-                                alu_ops = []
-                                for _ in range(min(12, len(group_b_addr_ops) - addr_idx)):
-                                    gb, ge = group_b_addr_ops[addr_idx]
-                                    alu_ops.append(("+", addr_temps_r[gb][ge], self.scratch["forest_values_p"], v_idx_r[gb] + ge))
-                                    addr_idx += 1
-                                if alu_ops:
-                                    instr["alu"] = alu_ops
-                            self.instrs.append(instr)
-                    self.instrs.append({"valu": [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(3)]})
                 else:
                     self.instrs.append({
                         "valu": [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(3)],
