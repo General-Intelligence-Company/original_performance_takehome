@@ -87,7 +87,7 @@ class KernelBuilder:
     ):
         """
         Highly optimized VLIW SIMD kernel with software pipelining.
-        Target: <1400 cycles (currently ~3968 = 37x speedup, need ~106x)
+        Overlaps gather[i] with compute[i-1] + store[i-1].
         """
         n_vectors = batch_size // VLEN  # 32
         n_groups = 6  # Limited by 6 valu slots
@@ -136,14 +136,14 @@ class KernelBuilder:
                 vl.append(("vbroadcast", vh[i+j][4], self.scratch_const(HASH_STAGES[i+j][4])))
             self.instrs.append({"valu": vl})
 
-        # Double-buffered scratch
-        vi = [self.alloc_scratch(f"vi{b}", n_groups*VLEN) for b in range(2)]
-        vv = [self.alloc_scratch(f"vv{b}", n_groups*VLEN) for b in range(2)]
-        vn = [self.alloc_scratch(f"vn{b}", n_groups*VLEN) for b in range(2)]
-        t1 = [self.alloc_scratch(f"t1{b}", n_groups*VLEN) for b in range(2)]
-        t2 = [self.alloc_scratch(f"t2{b}", n_groups*VLEN) for b in range(2)]
-        ai = [[self.alloc_scratch(f"ai{b}{g}") for g in range(n_groups)] for b in range(2)]
-        av = [[self.alloc_scratch(f"av{b}{g}") for g in range(n_groups)] for b in range(2)]
+        # Triple-buffered scratch for 3-stage pipeline (ld | gth+cmp | st)
+        vi = [self.alloc_scratch(f"vi{b}", n_groups*VLEN) for b in range(3)]
+        vv = [self.alloc_scratch(f"vv{b}", n_groups*VLEN) for b in range(3)]
+        vn = [self.alloc_scratch(f"vn{b}", n_groups*VLEN) for b in range(3)]
+        t1 = [self.alloc_scratch(f"t1{b}", n_groups*VLEN) for b in range(3)]
+        t2 = [self.alloc_scratch(f"t2{b}", n_groups*VLEN) for b in range(3)]
+        ai = [[self.alloc_scratch(f"ai{b}{g}") for g in range(n_groups)] for b in range(3)]
+        av = [[self.alloc_scratch(f"av{b}{g}") for g in range(n_groups)] for b in range(3)]
 
         def ld(buf, base, n):
             alu = []
@@ -195,23 +195,66 @@ class KernelBuilder:
                 if g+1<n: s.append(("vstore", av[buf][g+1], vv[buf]+(g+1)*VLEN))
                 self.instrs.append({"store": s})
 
-        def gth_cmp(lb, ln, cb, cn):
-            tot = ln * VLEN
-            ops = []
-            ops.append({"valu": [("^", vv[cb]+g*VLEN, vv[cb]+g*VLEN, vn[cb]+g*VLEN) for g in range(cn)]})
-            for op1, vc1, op2, op3, vc3 in vh:
-                ops.append({"valu": [(op1, t1[cb]+g*VLEN, vv[cb]+g*VLEN, vc1) for g in range(cn)]})
-                ops.append({"valu": [(op3, t2[cb]+g*VLEN, vv[cb]+g*VLEN, vc3) for g in range(cn)]})
-                ops.append({"valu": [(op2, vv[cb]+g*VLEN, t1[cb]+g*VLEN, t2[cb]+g*VLEN) for g in range(cn)]})
-            ops.append({"valu": [("&", t1[cb]+g*VLEN, vv[cb]+g*VLEN, v_one) for g in range(cn)]})
-            ops.append({"valu": [("+", t1[cb]+g*VLEN, t1[cb]+g*VLEN, v_one) for g in range(cn)]})
-            ops.append({"valu": [("multiply_add", vi[cb]+g*VLEN, vi[cb]+g*VLEN, v_two, t1[cb]+g*VLEN) for g in range(cn)]})
-            ops.append({"valu": [("<", t1[cb]+g*VLEN, vi[cb]+g*VLEN, v_n) for g in range(cn)]})
-            ops.append({"valu": [("*", vi[cb]+g*VLEN, vi[cb]+g*VLEN, t1[cb]+g*VLEN) for g in range(cn)]})
-
-            alu = [("+", tmp_addr[i], self.scratch["forest_values_p"], vi[lb]+i) for i in range(min(12,tot))]
+        def ld_st(ld_buf, ld_base, ld_n, st_buf, st_n):
+            """Interleave load[ld_buf] with store[st_buf]"""
+            # Compute addresses for ld
+            alu = []
+            for g in range(ld_n):
+                off = self.scratch_const((ld_base+g)*VLEN)
+                alu.append(("+", ai[ld_buf][g], self.scratch["inp_indices_p"], off))
+                alu.append(("+", av[ld_buf][g], self.scratch["inp_values_p"], off))
             self.instrs.append({"alu": alu})
-            oi = 0
+
+            # Build ld ops and st ops, then interleave
+            ld_ops = []
+            for g in range(0, ld_n, 2):
+                l = [("vload", vi[ld_buf]+g*VLEN, ai[ld_buf][g])]
+                if g+1<ld_n: l.append(("vload", vi[ld_buf]+(g+1)*VLEN, ai[ld_buf][g+1]))
+                ld_ops.append(l)
+                l = [("vload", vv[ld_buf]+g*VLEN, av[ld_buf][g])]
+                if g+1<ld_n: l.append(("vload", vv[ld_buf]+(g+1)*VLEN, av[ld_buf][g+1]))
+                ld_ops.append(l)
+
+            st_ops = []
+            for g in range(0, st_n, 2):
+                s = [("vstore", ai[st_buf][g], vi[st_buf]+g*VLEN)]
+                if g+1<st_n: s.append(("vstore", ai[st_buf][g+1], vi[st_buf]+(g+1)*VLEN))
+                st_ops.append(s)
+                s = [("vstore", av[st_buf][g], vv[st_buf]+g*VLEN)]
+                if g+1<st_n: s.append(("vstore", av[st_buf][g+1], vv[st_buf]+(g+1)*VLEN))
+                st_ops.append(s)
+
+            li, si = 0, 0
+            while li < len(ld_ops) or si < len(st_ops):
+                ins = {}
+                if li < len(ld_ops):
+                    ins["load"] = ld_ops[li]
+                    li += 1
+                if si < len(st_ops):
+                    ins["store"] = st_ops[si]
+                    si += 1
+                self.instrs.append(ins)
+
+        def gth_cmp(lb, ln, cb, cn):
+            """Interleave gather[lb] with cmp[cb]"""
+            tot = ln * VLEN
+            # Build cmp operations (22 total)
+            cmp_ops = []
+            cmp_ops.append({"valu": [("^", vv[cb]+g*VLEN, vv[cb]+g*VLEN, vn[cb]+g*VLEN) for g in range(cn)]})
+            for op1, vc1, op2, op3, vc3 in vh:
+                cmp_ops.append({"valu": [(op1, t1[cb]+g*VLEN, vv[cb]+g*VLEN, vc1) for g in range(cn)]})
+                cmp_ops.append({"valu": [(op3, t2[cb]+g*VLEN, vv[cb]+g*VLEN, vc3) for g in range(cn)]})
+                cmp_ops.append({"valu": [(op2, vv[cb]+g*VLEN, t1[cb]+g*VLEN, t2[cb]+g*VLEN) for g in range(cn)]})
+            cmp_ops.append({"valu": [("&", t1[cb]+g*VLEN, vv[cb]+g*VLEN, v_one) for g in range(cn)]})
+            cmp_ops.append({"valu": [("+", t1[cb]+g*VLEN, t1[cb]+g*VLEN, v_one) for g in range(cn)]})
+            cmp_ops.append({"valu": [("multiply_add", vi[cb]+g*VLEN, vi[cb]+g*VLEN, v_two, t1[cb]+g*VLEN) for g in range(cn)]})
+            cmp_ops.append({"valu": [("<", t1[cb]+g*VLEN, vi[cb]+g*VLEN, v_n) for g in range(cn)]})
+            cmp_ops.append({"valu": [("*", vi[cb]+g*VLEN, vi[cb]+g*VLEN, t1[cb]+g*VLEN) for g in range(cn)]})
+
+            # Build gather operations (25 total: 1 alu + 24 loads)
+            gth_ops = []
+            alu = [("+", tmp_addr[i], self.scratch["forest_values_p"], vi[lb]+i) for i in range(min(12,tot))]
+            gth_ops.append({"alu": alu})
             for i in range(0, tot, 2):
                 ins = {"load": [("load", vn[lb]+i, tmp_addr[i%12])]}
                 if i+1<tot: ins["load"].append(("load", vn[lb]+i+1, tmp_addr[(i+1)%12]))
@@ -220,36 +263,62 @@ class KernelBuilder:
                     a = [("+", tmp_addr[nxt%12], self.scratch["forest_values_p"], vi[lb]+nxt)]
                     if nxt+1<tot: a.append(("+", tmp_addr[(nxt+1)%12], self.scratch["forest_values_p"], vi[lb]+nxt+1))
                     ins["alu"] = a
-                if oi<len(ops):
-                    ins.update(ops[oi])
-                    oi += 1
-                self.instrs.append(ins)
-            while oi<len(ops):
-                self.instrs.append(ops[oi])
-                oi += 1
+                gth_ops.append(ins)
 
-        # Main loop
-        for _ in range(rounds):
-            nb = (n_vectors+n_groups-1)//n_groups
-            for bi in range(nb):
-                buf = bi % 2
-                base = bi * n_groups
-                na = min(n_groups, n_vectors-base)
+            # Interleave: gth uses load+alu, cmp uses valu
+            ci, gi = 0, 0
+            while ci < len(cmp_ops) or gi < len(gth_ops):
+                ins = {}
+                if gi < len(gth_ops):
+                    ins.update(gth_ops[gi])
+                    gi += 1
+                if ci < len(cmp_ops):
+                    ins.update(cmp_ops[ci])
+                    ci += 1
+                self.instrs.append(ins)
+
+        # Main loop with triple buffering and cross-round pipelining
+        nb = (n_vectors+n_groups-1)//n_groups  # 6 batches per round
+        total_batches = rounds * nb
+
+        # Pipeline stages: ld[i] | gth[i-1]+cmp[i-2] | st[i-2]
+        for bi in range(total_batches):
+            buf = bi % 3  # Buffer for current batch
+            batch_in_round = bi % nb
+            base = batch_in_round * n_groups
+            na = min(n_groups, n_vectors - base)
+
+            prev_buf = (bi - 1) % 3  # Buffer for batch i-1
+            prev_base = ((bi - 1) % nb) * n_groups
+            prev_n = min(n_groups, n_vectors - prev_base) if bi > 0 else 0
+
+            prev2_buf = (bi - 2) % 3  # Buffer for batch i-2
+            prev2_n = min(n_groups, n_vectors - ((bi - 2) % nb)*n_groups) if bi > 1 else 0
+
+            if bi == 0:
+                # First batch: ld[0], gth[0]
                 ld(buf, base, na)
-                if bi == 0:
-                    gth(buf, na)
-                else:
-                    pb = (buf+1)%2
-                    pbase = (bi-1)*n_groups
-                    pn = min(n_groups, n_vectors-pbase)
-                    gth_cmp(buf, na, pb, pn)
-                    st(pb, pn)
-            li = nb-1
-            lb = li%2
-            lbase = li*n_groups
-            ln = min(n_groups, n_vectors-lbase)
-            cmp(lb, ln)
-            st(lb, ln)
+                gth(buf, na)
+            elif bi == 1:
+                # Second batch: ld[1], gth_cmp[1,0]
+                ld(buf, base, na)
+                gth_cmp(buf, na, prev_buf, prev_n)
+            else:
+                # bi >= 2: ld[bi] | st[bi-2], gth[bi] | cmp[bi-1]
+                ld_st(buf, base, na, prev2_buf, prev2_n)
+                gth_cmp(buf, na, prev_buf, prev_n)
+
+        # Drain: need st[total-2], cmp[total-1], st[total-1]
+        last_bi = total_batches - 1
+        prev_buf = (last_bi - 1) % 3
+        prev_n = min(n_groups, n_vectors - ((last_bi - 1) % nb)*n_groups)
+
+        lb = last_bi % 3
+        ln = min(n_groups, n_vectors - (last_bi % nb)*n_groups)
+
+        st(prev_buf, prev_n)  # st[total-2]
+        cmp(lb, ln)           # cmp[total-1]
+        st(lb, ln)            # st[total-1]
 
         self.instrs.append({"flow": [("pause",)]})
 
