@@ -162,11 +162,24 @@ class KernelBuilder:
                     ops.append(("+", addr_temps_r[b][e], self.scratch["forest_values_p"], v_idx_r[b] + e))
                 self.instrs.append({"alu": ops})
 
+            # Round 11 (forest_height+1) is where all indices wrap back to 0
+            wraparound_round = forest_height + 1 if forest_height + 1 < rounds else -1
+
             for round_idx in range(rounds):
                 is_last_round = (round_idx == rounds - 1)
                 is_first_round = (round_idx == 0)
+                # All-zero: round 0 or wraparound round (all indices are 0)
+                is_all_zero = (round_idx == 0 or round_idx == wraparound_round)
 
-                if is_first_round:
+                if is_all_zero:
+                    # OPTIMIZATION: All indices are 0, load once and broadcast
+                    # Load forest_values[0] (1 cycle)
+                    self.instrs.append({"load": [("load", v_node_val_r[0], self.scratch["forest_values_p"])]})
+                    # Broadcast to all 6 batch vectors (1 cycle)
+                    self.instrs.append({"valu": [("vbroadcast", v_node_val_r[b], v_node_val_r[0]) for b in range(NUM_BATCHES)]})
+                    # XOR all 6 batches at once (1 cycle)
+                    self.instrs.append({"valu": [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(NUM_BATCHES)]})
+                elif is_first_round:
                     group_b_addr_ops = [(b, e) for b in range(3, 6) for e in range(VLEN)]
                     addr_idx = 0
                     for b in range(3):
@@ -190,9 +203,10 @@ class KernelBuilder:
                                 for b in range(3, 6) for e in range(4)]
                     })
 
-                node_load_b = [(b, e) for b in range(3, 6) for e in range(0, VLEN, 2)]
+                # For all-zero rounds, we don't need to load B nodes (already broadcast)
+                node_load_b = [] if is_all_zero else [(b, e) for b in range(3, 6) for e in range(0, VLEN, 2)]
                 load_idx = 0
-                need_remaining_b_addr = not is_first_round
+                need_remaining_b_addr = not is_first_round and not is_all_zero
                 for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
                     c1, c3 = hash_consts[hi]
                     instr = {"valu": [(op1, v_tmp1_r[b], v_val_r[b], c1) for b in range(3)] +
@@ -216,9 +230,12 @@ class KernelBuilder:
                         load_idx += 1
                     self.instrs.append(instr)
 
-                # Index A step 1 + XOR B
-                self.instrs.append({"valu": [("&", v_tmp1_r[b], v_val_r[b], v_one) for b in range(3)] +
-                                            [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(3, 6)]})
+                # Index A step 1 + XOR B (but skip XOR B for all-zero rounds - already done)
+                if is_all_zero:
+                    self.instrs.append({"valu": [("&", v_tmp1_r[b], v_val_r[b], v_one) for b in range(3)]})
+                else:
+                    self.instrs.append({"valu": [("&", v_tmp1_r[b], v_val_r[b], v_one) for b in range(3)] +
+                                                [("^", v_val_r[b], v_val_r[b], v_node_val_r[b]) for b in range(3, 6)]})
                 # Index A steps 2-3 (full cycle for A)
                 self.instrs.append({"valu": [("<<", v_tmp2_r[b], v_idx_r[b], v_one) for b in range(3)] +
                                             [("+", v_node_val_r[b], v_tmp1_r[b], v_one) for b in range(3)]})
