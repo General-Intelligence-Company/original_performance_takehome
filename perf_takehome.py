@@ -169,7 +169,8 @@ class KernelBuilder:
                 is_last_round = (round_idx == rounds - 1)
                 is_first_round = (round_idx == 0)
                 # All-zero: round 0 or wraparound round (all indices are 0)
-                is_all_zero = (round_idx == 0 or round_idx == wraparound_round)
+                # Only apply broadcast to round 0 (round 11 made things worse)
+                is_all_zero = (round_idx == 0)
 
                 if is_all_zero:
                     # OPTIMIZATION: All indices are 0, load once and broadcast
