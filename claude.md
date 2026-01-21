@@ -19,3 +19,13 @@ Before running tests, always verify the test setup:
 5. **Verify test output**: Tests report cycle counts and speedup metrics. A successful run shows `CYCLES: <number>` and test pass/fail status.
 
 The test file `tests/submission_tests.py` uses Python's unittest framework and tests both correctness and performance against various benchmarks.
+
+## Performance Measurement
+
+To get consistent performance measurements:
+
+1. Use a standardized test script: `python -c "from problem import *; # run your test here"`
+2. Run measurements multiple times to check for consistency
+3. Clear any cached state between runs if needed
+4. Document your current best result and the method used to achieve it
+5. Always verify correctness before measuring performance
