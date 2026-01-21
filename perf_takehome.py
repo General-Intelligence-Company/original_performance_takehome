@@ -121,8 +121,13 @@ class KernelBuilder:
         v_one = self.alloc_vconst(1)
 
         hash_consts = []
+        madd_stages = {}  # Stages that can use multiply_add: {stage_idx: (mult_addr, const_addr)}
         for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
             hash_consts.append((self.alloc_vconst(val1), self.alloc_vconst(val3)))
+            # For stages where: (val + const1) + (val << shift) = val * (1 + 2^shift) + const1
+            if op1 == '+' and op2 == '+' and op3 == '<<':
+                mult = 1 + (1 << val3)
+                madd_stages[hi] = (self.alloc_vconst(mult), self.alloc_vconst(val1))
 
         v_n_nodes = self.alloc_scratch("v_n_nodes", VLEN)
         self.add("valu", ("vbroadcast", v_n_nodes, self.scratch["n_nodes"]))
@@ -193,6 +198,24 @@ class KernelBuilder:
                 need_remaining_b_addr = not is_first_round and not is_all_zero
                 for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
                     c1, c3 = hash_consts[hi]
+
+                    if hi in madd_stages:
+                        # multiply_add: 1 cycle instead of 2 for stages 0, 2, 4
+                        mult_addr, const_addr = madd_stages[hi]
+                        instr = {"valu": [("multiply_add", v_val_r[b], v_val_r[b], mult_addr, const_addr) for b in range(3)]}
+                        if load_idx < len(node_load_b):
+                            b_l, e_l = node_load_b[load_idx]
+                            instr["load"] = [("load", v_node_val_r[b_l] + e_l, addr_temps_r[b_l][e_l]),
+                                            ("load", v_node_val_r[b_l] + e_l + 1, addr_temps_r[b_l][e_l + 1])]
+                            load_idx += 1
+                        if need_remaining_b_addr and hi == 0:
+                            instr["alu"] = [("+", addr_temps_r[b][e], self.scratch["forest_values_p"], v_idx_r[b] + e)
+                                            for b in range(3, 6) for e in range(4, VLEN)]
+                            need_remaining_b_addr = False
+                        self.instrs.append(instr)
+                        continue
+
+                    # Standard 2-cycle hash stage (for stages 1, 3, 5)
                     instr = {"valu": [(op1, v_tmp1_r[b], v_val_r[b], c1) for b in range(3)] +
                                      [(op3, v_tmp2_r[b], v_val_r[b], c3) for b in range(3)]}
                     if load_idx < len(node_load_b):
@@ -213,6 +236,13 @@ class KernelBuilder:
                                         ("load", v_node_val_r[b_l] + e_l + 1, addr_temps_r[b_l][e_l + 1])]
                         load_idx += 1
                     self.instrs.append(instr)
+
+                # Complete any remaining B node loads that didn't fit in Hash A
+                while load_idx < len(node_load_b):
+                    b_l, e_l = node_load_b[load_idx]
+                    self.instrs.append({"load": [("load", v_node_val_r[b_l] + e_l, addr_temps_r[b_l][e_l]),
+                                                ("load", v_node_val_r[b_l] + e_l + 1, addr_temps_r[b_l][e_l + 1])]})
+                    load_idx += 1
 
                 # Index A step 1 + XOR B (but skip XOR B for all-zero rounds - already done)
                 if is_all_zero:
