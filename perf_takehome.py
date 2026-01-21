@@ -132,14 +132,24 @@ class KernelBuilder:
 
         self.add("flow", ("pause",))
 
+        # Track if we need to compute addresses (first iter) or they're already computed (subsequent iters)
+        is_first_outer_iter = True
+
         for vec_iter in range(0, n_vec_iters, NUM_BATCHES):
             offsets = [batch_offset_consts[min(vec_iter + i, n_vec_iters - 1)] for i in range(NUM_BATCHES)]
+            next_vec_iter = vec_iter + NUM_BATCHES
+            is_last_outer_iter = (next_vec_iter >= n_vec_iters)
+            next_offsets = [batch_offset_consts[min(next_vec_iter + i, n_vec_iters - 1)] for i in range(NUM_BATCHES)] if not is_last_outer_iter else None
 
             # Load initial idx/val
-            self.instrs.append({
-                "alu": [("+", idx_addr_r[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
-                       [("+", val_addr_r[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)]
-            })
+            if is_first_outer_iter:
+                # First iteration: compute addresses then load
+                self.instrs.append({
+                    "alu": [("+", idx_addr_r[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
+                           [("+", val_addr_r[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)]
+                })
+            # For non-first iterations, addresses were computed during previous iteration's stores
+
             for i in range(NUM_BATCHES):
                 self.instrs.append({"load": [("vload", v_idx_r[i], idx_addr_r[i]), ("vload", v_val_r[i], val_addr_r[i])]})
 
@@ -295,6 +305,9 @@ class KernelBuilder:
                     instr["load"] = [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
                                     ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]
                     load_idx += 1
+                elif is_last_round:
+                    # Overlap store batch 0 with Index B step 3
+                    instr["store"] = [("vstore", idx_addr_r[0], v_idx_r[0]), ("vstore", val_addr_r[0], v_val_r[0])]
                 self.instrs.append(instr)
 
                 instr = {"valu": [("<", v_cond_r[b], v_idx_r[b], v_n_nodes) for b in range(3, 6)]}
@@ -303,6 +316,9 @@ class KernelBuilder:
                     instr["load"] = [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
                                     ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]
                     load_idx += 1
+                elif is_last_round:
+                    # Overlap store batch 1 with Index B step 4
+                    instr["store"] = [("vstore", idx_addr_r[1], v_idx_r[1]), ("vstore", val_addr_r[1], v_val_r[1])]
                 self.instrs.append(instr)
 
                 instr = {"valu": [("*", v_idx_r[b], v_idx_r[b], v_cond_r[b]) for b in range(3, 6)]}
@@ -311,17 +327,31 @@ class KernelBuilder:
                     instr["load"] = [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
                                     ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]
                     load_idx += 1
+                elif is_last_round:
+                    # Overlap store batch 2 with Index B step 5
+                    instr["store"] = [("vstore", idx_addr_r[2], v_idx_r[2]), ("vstore", val_addr_r[2], v_val_r[2])]
                 self.instrs.append(instr)
 
-            # Store results - overlap ALU with first store
-            self.instrs.append({
-                "alu": [("+", idx_addr_r[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
-                       [("+", val_addr_r[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)],
-                "store": [("vstore", idx_addr_r[0], v_idx_r[0]), ("vstore", val_addr_r[0], v_val_r[0])]
-            })
-            for b in range(1, NUM_BATCHES):
+            # Store results - for last round of rounds, batches 0-2 already stored above
+            # Only need to store batches 3-5
+            # If not last outer iteration, overlap ALU for next iter's addresses with LAST store
+            for b in range(3, NUM_BATCHES - 1):
                 self.instrs.append({"store": [("vstore", idx_addr_r[b], v_idx_r[b]),
                                               ("vstore", val_addr_r[b], v_val_r[b])]})
+
+            if not is_last_outer_iter:
+                # Compute next iteration's addresses during last store (batch 5)
+                self.instrs.append({
+                    "alu": [("+", idx_addr_r[i], self.scratch["inp_indices_p"], next_offsets[i]) for i in range(NUM_BATCHES)] +
+                           [("+", val_addr_r[i], self.scratch["inp_values_p"], next_offsets[i]) for i in range(NUM_BATCHES)],
+                    "store": [("vstore", idx_addr_r[5], v_idx_r[5]), ("vstore", val_addr_r[5], v_val_r[5])]
+                })
+            else:
+                # Last outer iteration: just store, no next iter to precompute
+                self.instrs.append({"store": [("vstore", idx_addr_r[5], v_idx_r[5]),
+                                              ("vstore", val_addr_r[5], v_val_r[5])]})
+
+            is_first_outer_iter = False
 
         self.instrs.append({"flow": [("pause",)]})
 
