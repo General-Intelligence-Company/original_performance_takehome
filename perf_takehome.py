@@ -271,33 +271,32 @@ class KernelBuilder:
                 self.instrs.append({"valu": [("<<", v_tmp2_r[b], v_idx_r[b], v_one) for b in range(3)] +
                                             [("+", v_node_val_r[b], v_tmp1_r[b], v_one) for b in range(3)]})
 
-                # Get Hash B stage 0 constants
-                c1_0, c3_0 = hash_consts[0]
-                op1_0, _, op2_0, op3_0, _ = HASH_STAGES[0]
-
-                # Index A step 4 + Hash B stage 0 op1
+                # Index A step 4 + Hash B stage 0 (multiply_add since stage 0 is madd-able)
+                mult_addr_0, const_addr_0 = madd_stages[0]
                 self.instrs.append({"valu": [("+", v_idx_r[b], v_tmp2_r[b], v_node_val_r[b]) for b in range(3)] +
-                                            [(op1_0, v_tmp1_r[b], v_val_r[b], c1_0) for b in range(3, 6)]})
+                                            [("multiply_add", v_val_r[b], v_val_r[b], mult_addr_0, const_addr_0) for b in range(3, 6)]})
 
-                # Bounds A step 1 + Hash B stage 0 op3
+                # Bounds A step 1 + Hash B stage 1 op1 (stage 1 is XOR-based, not multiply_add)
+                op1_1, _, _, op3_1, _ = HASH_STAGES[1]
+                c1_1, c3_1 = hash_consts[1]
                 self.instrs.append({"valu": [("<", v_cond_r[b], v_idx_r[b], v_n_nodes) for b in range(3)] +
-                                            [(op3_0, v_tmp2_r[b], v_val_r[b], c3_0) for b in range(3, 6)]})
+                                            [(op1_1, v_tmp1_r[b], v_val_r[b], c1_1) for b in range(3, 6)]})
 
-                # Bounds A step 2 + Hash B stage 0 op2
+                # Bounds A step 2 + Hash B stage 1 op3
                 self.instrs.append({"valu": [("*", v_idx_r[b], v_idx_r[b], v_cond_r[b]) for b in range(3)] +
-                                            [(op2_0, v_val_r[b], v_tmp1_r[b], v_tmp2_r[b]) for b in range(3, 6)]})
+                                            [(op3_1, v_tmp2_r[b], v_val_r[b], c3_1) for b in range(3, 6)]})
 
                 next_addr_ops = [(b, e) for b in range(3) for e in range(VLEN)] if not is_last_round else []
                 next_load_ops = [(b, e) for b in range(3) for e in range(0, VLEN, 2)] if not is_last_round else []
                 addr_idx = 0
                 load_idx = 0
 
-                # Hash B stages 1-5 (stage 0 already done above overlapped with Index/Bounds A)
+                # Hash B stages 1-5 (stage 0 already done, stage 1 op1/op3 done above with Bounds A)
                 for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
                     if hi == 0:
                         continue  # Skip stage 0, already done
                     c1, c3 = hash_consts[hi]
-                    
+
                     # Use multiply_add for stages 2 and 4 (op1=+, op2=+, op3=<<)
                     if hi in madd_stages:
                         mult_addr, const_addr = madd_stages[hi]
@@ -318,8 +317,28 @@ class KernelBuilder:
                             load_idx += 1
                         self.instrs.append(instr)
                         continue  # Skip 2-cycle path for this stage
-                    
-                    # Standard 2-cycle path for stages 1, 3, 5
+
+                    # For stage 1, op1/op3 were already done overlapped with Bounds A
+                    # So we only need to emit op2
+                    if hi == 1:
+                        instr = {"valu": [(op2, v_val_r[b], v_tmp1_r[b], v_tmp2_r[b]) for b in range(3, 6)]}
+                        if addr_idx < len(next_addr_ops):
+                            alu_ops = []
+                            for _ in range(min(12, len(next_addr_ops) - addr_idx)):
+                                nb, ne = next_addr_ops[addr_idx]
+                                alu_ops.append(("+", addr_temps_r[nb][ne], self.scratch["forest_values_p"], v_idx_r[nb] + ne))
+                                addr_idx += 1
+                            if alu_ops:
+                                instr["alu"] = alu_ops
+                        elif load_idx < len(next_load_ops):
+                            nb, ne = next_load_ops[load_idx]
+                            instr["load"] = [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
+                                            ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]
+                            load_idx += 1
+                        self.instrs.append(instr)
+                        continue
+
+                    # Standard 2-cycle path for stages 3, 5
                     instr = {"valu": [(op1, v_tmp1_r[b], v_val_r[b], c1) for b in range(3, 6)] +
                                      [(op3, v_tmp2_r[b], v_val_r[b], c3) for b in range(3, 6)]}
                     if addr_idx < len(next_addr_ops):
@@ -726,6 +745,373 @@ class KernelBuilder:
 
                     # Swap SG0 and SG1 for next round
                     SG0, SG1 = SG1, SG0
+
+            # Store results
+            for b in range(NUM_BATCHES):
+                self.instrs.append({"store": [("vstore", idx_addr[b], v_idx[b]),
+                                              ("vstore", val_addr[b], v_val[b])]})
+
+        self.instrs.append({"flow": [("pause",)]})
+
+    def build_kernel_true_stagger(
+        self, forest_height: int, n_nodes: int, batch_size: int, rounds: int
+    ):
+        """
+        True staggered pipeline: A and B run at DIFFERENT stages simultaneously.
+        When A is at stage N, B is at stage N-1.
+        This uses all 6 VALU slots: 3 from A's stage + 3 from B's stage.
+        """
+        tmp1 = self.alloc_scratch("tmp1")
+        tmp2 = self.alloc_scratch("tmp2")
+        tmp3 = self.alloc_scratch("tmp3")
+
+        init_vars = ["rounds", "n_nodes", "batch_size", "forest_height",
+                     "forest_values_p", "inp_indices_p", "inp_values_p"]
+        for v in init_vars:
+            self.alloc_scratch(v, 1)
+        for i, v in enumerate(init_vars):
+            self.add("load", ("const", tmp1, i))
+            self.add("load", ("load", self.scratch[v], tmp1))
+
+        NUM_BATCHES = 6
+        A = list(range(3))  # batches 0, 1, 2
+        B = list(range(3, 6))  # batches 3, 4, 5
+
+        v_idx = [self.alloc_scratch(f"v_idx_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_val = [self.alloc_scratch(f"v_val_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_node = [self.alloc_scratch(f"v_node_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_tmp1 = [self.alloc_scratch(f"v_tmp1_{i}", VLEN) for i in range(NUM_BATCHES)]
+        v_tmp2 = [self.alloc_scratch(f"v_tmp2_{i}", VLEN) for i in range(NUM_BATCHES)]
+        addr_temps = [[self.alloc_scratch(f"addr_tmp_{i}_{j}") for j in range(VLEN)] for i in range(NUM_BATCHES)]
+        idx_addr = [self.alloc_scratch(f"idx_addr_{i}") for i in range(NUM_BATCHES)]
+        val_addr = [self.alloc_scratch(f"val_addr_{i}") for i in range(NUM_BATCHES)]
+        v_cond = [self.alloc_scratch(f"v_cond_{i}", VLEN) for i in range(NUM_BATCHES)]
+
+        v_one = self.alloc_vconst(1)
+
+        hash_consts = []
+        madd_stages = {}
+        for hi, (op1, val1, op2, op3, val3) in enumerate(HASH_STAGES):
+            hash_consts.append((self.alloc_vconst(val1), self.alloc_vconst(val3)))
+            if op1 == '+' and op2 == '+' and op3 == '<<':
+                mult = 1 + (1 << val3)
+                madd_stages[hi] = (self.alloc_vconst(mult), self.alloc_vconst(val1))
+
+        v_n_nodes = self.alloc_scratch("v_n_nodes", VLEN)
+        self.add("valu", ("vbroadcast", v_n_nodes, self.scratch["n_nodes"]))
+
+        n_vec_iters = batch_size // VLEN
+        batch_offset_consts = [self.scratch_const(vi * VLEN) for vi in range(n_vec_iters)]
+
+        self.add("flow", ("pause",))
+
+        # Hash stage info for staggering
+        # Stages 0,2,4: multiply_add (1 cycle, 3 ops for 3 batches)
+        # Stages 1,3,5: 2-cycle (cycle 1: 6 ops for op1+op3, cycle 2: 3 ops for op2)
+
+        def get_stage_ops(batches, hi, phase=0):
+            """Get VALU ops for a hash stage.
+            For multiply_add: single phase (phase=0)
+            For 2-cycle: phase=0 is op1+op3, phase=1 is op2
+            Returns list of (op, dest, src1, src2) or (op, dest, src1, src2, src3) for madd
+            """
+            op1, val1, op2, op3, val3 = HASH_STAGES[hi]
+            c1, c3 = hash_consts[hi]
+
+            if hi in madd_stages:
+                mult_addr, const_addr = madd_stages[hi]
+                return [("multiply_add", v_val[b], v_val[b], mult_addr, const_addr) for b in batches]
+            else:
+                if phase == 0:
+                    # op1 and op3 together
+                    return ([(op1, v_tmp1[b], v_val[b], c1) for b in batches] +
+                            [(op3, v_tmp2[b], v_val[b], c3) for b in batches])
+                else:
+                    # op2
+                    return [(op2, v_val[b], v_tmp1[b], v_tmp2[b]) for b in batches]
+
+        def is_madd(hi):
+            return hi in madd_stages
+
+        for vec_iter in range(0, n_vec_iters, NUM_BATCHES):
+            offsets = [batch_offset_consts[min(vec_iter + i, n_vec_iters - 1)] for i in range(NUM_BATCHES)]
+
+            # Load initial idx/val
+            self.instrs.append({
+                "alu": [("+", idx_addr[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
+                       [("+", val_addr[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)]
+            })
+            for i in range(NUM_BATCHES):
+                self.instrs.append({"load": [("vload", v_idx[i], idx_addr[i]), ("vload", v_val[i], val_addr[i])]})
+
+            for round_idx in range(rounds):
+                is_first = (round_idx == 0)
+                is_last = (round_idx == rounds - 1)
+
+                if is_first:
+                    # Round 0: All indices are 0
+                    self.instrs.append({"load": [("load", v_node[0], self.scratch["forest_values_p"])]})
+                    self.instrs.append({"valu": [("vbroadcast", v_node[b], v_node[0]) for b in range(NUM_BATCHES)]})
+                    # XOR all
+                    self.instrs.append({"valu": [("^", v_val[b], v_val[b], v_node[b]) for b in range(NUM_BATCHES)]})
+
+                    # Hash all 6 together - BUT respect 6 VALU slot limit
+                    for hi in range(len(HASH_STAGES)):
+                        op1, val1, op2, op3, val3 = HASH_STAGES[hi]
+                        c1, c3 = hash_consts[hi]
+                        if is_madd(hi):
+                            # multiply_add: 6 ops for 6 batches = 1 cycle
+                            mult_addr, const_addr = madd_stages[hi]
+                            self.instrs.append({"valu": [("multiply_add", v_val[b], v_val[b], mult_addr, const_addr) for b in range(NUM_BATCHES)]})
+                        else:
+                            # 2-cycle stage: need 3 cycles for 6 batches
+                            # Cycle 1: op1 for all 6
+                            self.instrs.append({"valu": [(op1, v_tmp1[b], v_val[b], c1) for b in range(NUM_BATCHES)]})
+                            # Cycle 2: op3 for all 6
+                            self.instrs.append({"valu": [(op3, v_tmp2[b], v_val[b], c3) for b in range(NUM_BATCHES)]})
+                            # Cycle 3: op2 for all 6
+                            self.instrs.append({"valu": [(op2, v_val[b], v_tmp1[b], v_tmp2[b]) for b in range(NUM_BATCHES)]})
+
+                    # Index all 6
+                    self.instrs.append({"valu": [("&", v_tmp1[b], v_val[b], v_one) for b in range(NUM_BATCHES)]})
+                    self.instrs.append({"valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in range(NUM_BATCHES)]})
+                    self.instrs.append({"valu": [("+", v_node[b], v_tmp1[b], v_one) for b in range(NUM_BATCHES)]})
+                    self.instrs.append({"valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in range(NUM_BATCHES)]})
+                    self.instrs.append({"valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in range(NUM_BATCHES)]})
+                    self.instrs.append({"valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in range(NUM_BATCHES)]})
+
+                    # Compute addresses and load node values for A (round 1)
+                    for b in A:
+                        for e in range(0, VLEN, 4):
+                            self.instrs.append({"alu": [("+", addr_temps[b][e+j], self.scratch["forest_values_p"], v_idx[b] + e + j) for j in range(min(4, VLEN-e))]})
+                    for b in A:
+                        for e in range(0, VLEN, 2):
+                            self.instrs.append({"load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                                        ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]})
+
+                else:
+                    # Non-zero rounds: TRUE STAGGERED PIPELINE
+                    # A starts at stage 0, B is one stage behind (still loading or at previous stage)
+
+                    # Compute B addresses while A does XOR
+                    b_addr_ops = [(b, e) for b in B for e in range(VLEN)]
+                    b_load_ops = [(b, e) for b in B for e in range(0, VLEN, 2)]
+                    b_addr_idx = 0
+                    b_load_idx = 0
+
+                    # XOR A + compute first B addresses
+                    alu_ops = []
+                    for _ in range(min(12, len(b_addr_ops))):
+                        b, e = b_addr_ops[b_addr_idx]
+                        alu_ops.append(("+", addr_temps[b][e], self.scratch["forest_values_p"], v_idx[b] + e))
+                        b_addr_idx += 1
+                    self.instrs.append({
+                        "valu": [("^", v_val[b], v_val[b], v_node[b]) for b in A],
+                        "alu": alu_ops
+                    })
+
+                    # Finish B addresses
+                    while b_addr_idx < len(b_addr_ops):
+                        alu_ops = []
+                        for _ in range(min(12, len(b_addr_ops) - b_addr_idx)):
+                            b, e = b_addr_ops[b_addr_idx]
+                            alu_ops.append(("+", addr_temps[b][e], self.scratch["forest_values_p"], v_idx[b] + e))
+                            b_addr_idx += 1
+                        self.instrs.append({"alu": alu_ops})
+
+                    # TRUE STAGGER: A at stage N, B loads/trails
+                    # We interleave A's hash stages with B's loads
+                    # A stage 0 (madd) + B load
+                    # A stage 1 phase 0 + B load
+                    # A stage 1 phase 1 + B load
+                    # ... etc until B finishes loading
+                    # Then A stage X + B XOR
+                    # Then A stage X+1 + B stage 0
+                    # etc.
+
+                    # Track where we are in A's pipeline
+                    # A has 9 VALU cycles: 3 madd + 6 for 2-cycle stages
+                    # B needs 12 load cycles
+
+                    # Build A's hash stages as a sequence of 3-op VALU instructions
+                    a_hash_ops = []
+                    for hi in range(len(HASH_STAGES)):
+                        if is_madd(hi):
+                            a_hash_ops.append(get_stage_ops(A, hi))
+                        else:
+                            a_hash_ops.append(get_stage_ops(A, hi, 0))  # op1+op3 = 6 ops for 3 batches
+                            a_hash_ops.append(get_stage_ops(A, hi, 1))  # op2 = 3 ops
+
+                    # Emit A's hash with B's loads overlapped
+                    a_idx = 0
+                    while a_idx < len(a_hash_ops) and b_load_idx < len(b_load_ops):
+                        valu_ops = a_hash_ops[a_idx]
+                        b, e = b_load_ops[b_load_idx]
+                        self.instrs.append({
+                            "valu": valu_ops,
+                            "load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                    ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]
+                        })
+                        a_idx += 1
+                        b_load_idx += 1
+
+                    # Finish remaining A hash ops
+                    while a_idx < len(a_hash_ops):
+                        self.instrs.append({"valu": a_hash_ops[a_idx]})
+                        a_idx += 1
+
+                    # Finish remaining B loads
+                    while b_load_idx < len(b_load_ops):
+                        b, e = b_load_ops[b_load_idx]
+                        self.instrs.append({"load": [("load", v_node[b] + e, addr_temps[b][e]),
+                                                    ("load", v_node[b] + e + 1, addr_temps[b][e + 1])]})
+                        b_load_idx += 1
+
+                    # Now B has its node values loaded, A has finished hash
+                    # XOR B (3 ops) + A index step 1 (3 ops) = 6 ops
+                    self.instrs.append({
+                        "valu": [("^", v_val[b], v_val[b], v_node[b]) for b in B] +
+                                [("&", v_tmp1[b], v_val[b], v_one) for b in A]
+                    })
+
+                    # A index step 2-3 + B hash stage 0
+                    self.instrs.append({
+                        "valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in A] +
+                                [("+", v_node[b], v_tmp1[b], v_one) for b in A]
+                    })
+
+                    # Now TRUE STAGGER: A index step 4 + B stage 0
+                    # B stage 0 is multiply_add (3 ops)
+                    # A step 4 is + (3 ops)
+                    self.instrs.append({
+                        "valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in A] +
+                                [("multiply_add", v_val[b], v_val[b], madd_stages[0][0], madd_stages[0][1]) for b in B]
+                    })
+
+                    # A bounds check + B stage 1 phase 0
+                    op1_1, _, op2_1, op3_1, _ = HASH_STAGES[1]
+                    c1_1, c3_1 = hash_consts[1]
+                    self.instrs.append({
+                        "valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in A] +
+                                [(op1_1, v_tmp1[b], v_val[b], c1_1) for b in B]
+                    })
+                    self.instrs.append({
+                        "valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in A] +
+                                [(op3_1, v_tmp2[b], v_val[b], c3_1) for b in B]
+                    })
+
+                    # B stage 1 phase 1 - only 3 ops, need to overlap with something
+                    # Start loading next round's A values
+                    next_a_addr_ops = [(b, e) for b in A for e in range(VLEN)] if not is_last else []
+                    next_a_load_ops = [(b, e) for b in A for e in range(0, VLEN, 2)] if not is_last else []
+                    next_addr_idx = 0
+                    next_load_idx = 0
+
+                    # B stage 1 op2 + start next A addresses
+                    instr = {"valu": [(op2_1, v_val[b], v_tmp1[b], v_tmp2[b]) for b in B]}
+                    if next_addr_idx < len(next_a_addr_ops):
+                        alu_ops = []
+                        for _ in range(min(12, len(next_a_addr_ops) - next_addr_idx)):
+                            nb, ne = next_a_addr_ops[next_addr_idx]
+                            alu_ops.append(("+", addr_temps[nb][ne], self.scratch["forest_values_p"], v_idx[nb] + ne))
+                            next_addr_idx += 1
+                        instr["alu"] = alu_ops
+                    self.instrs.append(instr)
+
+                    # B stages 2-5 + next A addr/loads
+                    for hi in range(2, len(HASH_STAGES)):
+                        if is_madd(hi):
+                            instr = {"valu": get_stage_ops(B, hi)}
+                            if next_addr_idx < len(next_a_addr_ops):
+                                alu_ops = []
+                                for _ in range(min(12, len(next_a_addr_ops) - next_addr_idx)):
+                                    nb, ne = next_a_addr_ops[next_addr_idx]
+                                    alu_ops.append(("+", addr_temps[nb][ne], self.scratch["forest_values_p"], v_idx[nb] + ne))
+                                    next_addr_idx += 1
+                                instr["alu"] = alu_ops
+                            elif next_load_idx < len(next_a_load_ops):
+                                nb, ne = next_a_load_ops[next_load_idx]
+                                instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                                ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                                next_load_idx += 1
+                            self.instrs.append(instr)
+                        else:
+                            # 2-cycle stage
+                            instr = {"valu": get_stage_ops(B, hi, 0)}
+                            if next_addr_idx < len(next_a_addr_ops):
+                                alu_ops = []
+                                for _ in range(min(12, len(next_a_addr_ops) - next_addr_idx)):
+                                    nb, ne = next_a_addr_ops[next_addr_idx]
+                                    alu_ops.append(("+", addr_temps[nb][ne], self.scratch["forest_values_p"], v_idx[nb] + ne))
+                                    next_addr_idx += 1
+                                instr["alu"] = alu_ops
+                            elif next_load_idx < len(next_a_load_ops):
+                                nb, ne = next_a_load_ops[next_load_idx]
+                                instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                                ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                                next_load_idx += 1
+                            self.instrs.append(instr)
+
+                            instr = {"valu": get_stage_ops(B, hi, 1)}
+                            if next_addr_idx < len(next_a_addr_ops):
+                                alu_ops = []
+                                for _ in range(min(12, len(next_a_addr_ops) - next_addr_idx)):
+                                    nb, ne = next_a_addr_ops[next_addr_idx]
+                                    alu_ops.append(("+", addr_temps[nb][ne], self.scratch["forest_values_p"], v_idx[nb] + ne))
+                                    next_addr_idx += 1
+                                instr["alu"] = alu_ops
+                            elif next_load_idx < len(next_a_load_ops):
+                                nb, ne = next_a_load_ops[next_load_idx]
+                                instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                                ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                                next_load_idx += 1
+                            self.instrs.append(instr)
+
+                    # B index + remaining next A loads
+                    self.instrs.append({"valu": [("&", v_tmp1[b], v_val[b], v_one) for b in B]})
+
+                    instr = {"valu": [("<<", v_tmp2[b], v_idx[b], v_one) for b in B] +
+                                     [("+", v_node[b], v_tmp1[b], v_one) for b in B]}
+                    if next_load_idx < len(next_a_load_ops):
+                        nb, ne = next_a_load_ops[next_load_idx]
+                        instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                        ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                        next_load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("+", v_idx[b], v_tmp2[b], v_node[b]) for b in B]}
+                    if next_load_idx < len(next_a_load_ops):
+                        nb, ne = next_a_load_ops[next_load_idx]
+                        instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                        ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                        next_load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("<", v_cond[b], v_idx[b], v_n_nodes) for b in B]}
+                    if next_load_idx < len(next_a_load_ops):
+                        nb, ne = next_a_load_ops[next_load_idx]
+                        instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                        ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                        next_load_idx += 1
+                    self.instrs.append(instr)
+
+                    instr = {"valu": [("*", v_idx[b], v_idx[b], v_cond[b]) for b in B]}
+                    if next_load_idx < len(next_a_load_ops):
+                        nb, ne = next_a_load_ops[next_load_idx]
+                        instr["load"] = [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                        ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]
+                        next_load_idx += 1
+                    self.instrs.append(instr)
+
+                    # Finish remaining next A loads
+                    while next_load_idx < len(next_a_load_ops):
+                        nb, ne = next_a_load_ops[next_load_idx]
+                        self.instrs.append({"load": [("load", v_node[nb] + ne, addr_temps[nb][ne]),
+                                                    ("load", v_node[nb] + ne + 1, addr_temps[nb][ne + 1])]})
+                        next_load_idx += 1
+
+                    # Swap A and B for next round
+                    A, B = B, A
 
             # Store results
             for b in range(NUM_BATCHES):
