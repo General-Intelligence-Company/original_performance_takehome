@@ -313,11 +313,13 @@ class KernelBuilder:
                     load_idx += 1
                 self.instrs.append(instr)
 
+            # Store results - overlap ALU with first store
             self.instrs.append({
                 "alu": [("+", idx_addr_r[i], self.scratch["inp_indices_p"], offsets[i]) for i in range(NUM_BATCHES)] +
-                       [("+", val_addr_r[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)]
+                       [("+", val_addr_r[i], self.scratch["inp_values_p"], offsets[i]) for i in range(NUM_BATCHES)],
+                "store": [("vstore", idx_addr_r[0], v_idx_r[0]), ("vstore", val_addr_r[0], v_val_r[0])]
             })
-            for b in range(NUM_BATCHES):
+            for b in range(1, NUM_BATCHES):
                 self.instrs.append({"store": [("vstore", idx_addr_r[b], v_idx_r[b]),
                                               ("vstore", val_addr_r[b], v_val_r[b])]})
 
