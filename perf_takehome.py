@@ -280,6 +280,29 @@ class KernelBuilder:
                     if hi == 0:
                         continue  # Skip stage 0, already done
                     c1, c3 = hash_consts[hi]
+                    
+                    # Use multiply_add for stages 2 and 4 (op1=+, op2=+, op3=<<)
+                    if hi in madd_stages:
+                        mult_addr, const_addr = madd_stages[hi]
+                        instr = {"valu": [("multiply_add", v_val_r[b], v_val_r[b], mult_addr, const_addr) for b in range(3, 6)]}
+                        # Still need to schedule ALU/load ops
+                        if addr_idx < len(next_addr_ops):
+                            alu_ops = []
+                            for _ in range(min(12, len(next_addr_ops) - addr_idx)):
+                                nb, ne = next_addr_ops[addr_idx]
+                                alu_ops.append(("+", addr_temps_r[nb][ne], self.scratch["forest_values_p"], v_idx_r[nb] + ne))
+                                addr_idx += 1
+                            if alu_ops:
+                                instr["alu"] = alu_ops
+                        elif load_idx < len(next_load_ops):
+                            nb, ne = next_load_ops[load_idx]
+                            instr["load"] = [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
+                                            ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]
+                            load_idx += 1
+                        self.instrs.append(instr)
+                        continue  # Skip 2-cycle path for this stage
+                    
+                    # Standard 2-cycle path for stages 1, 3, 5
                     instr = {"valu": [(op1, v_tmp1_r[b], v_val_r[b], c1) for b in range(3, 6)] +
                                      [(op3, v_tmp2_r[b], v_val_r[b], c3) for b in range(3, 6)]}
                     if addr_idx < len(next_addr_ops):
@@ -362,6 +385,14 @@ class KernelBuilder:
                     # Overlap store batch 2 with Index B step 5
                     instr["store"] = [("vstore", idx_addr_r[2], v_idx_r[2]), ("vstore", val_addr_r[2], v_val_r[2])]
                 self.instrs.append(instr)
+
+                # Extra load cycle if needed (when using multiply_add we save cycles but need more load slots)
+                while load_idx < len(next_load_ops):
+                    nb, ne = next_load_ops[load_idx]
+                    instr = {"load": [("load", v_node_val_r[nb] + ne, addr_temps_r[nb][ne]),
+                                     ("load", v_node_val_r[nb] + ne + 1, addr_temps_r[nb][ne + 1])]}
+                    load_idx += 1
+                    self.instrs.append(instr)
 
             # Store results - for last round of rounds, batches 0-2 already stored above
             # Only need to store batches 3-5
