@@ -140,6 +140,11 @@ Before creating new files:
 
 **Common Issue**: Creating `CLAUDE.md` when `claude.md` already exists, or vice versa. Always check first.
 
+**Documentation files:**
+- Use lowercase for documentation files: `claude.md`, not `CLAUDE.md`
+- Check existing repository structure before creating new files
+- Use consistent naming patterns that match the project's conventions
+
 ## Merge Conflict Resolution
 
 When encountering merge conflicts in `claude.md` or other documentation files:
