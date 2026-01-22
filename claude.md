@@ -51,6 +51,17 @@ Before modifying `claude.md` or other documentation:
 
 This prevents merge conflicts and reduces manual conflict resolution work.
 
+## Database Prerequisites
+
+**Before any database operations:**
+1. Verify database connection: Check that DATABASE_URL is set and accessible
+2. Test connectivity: `psql $DATABASE_URL -c 'SELECT 1'` or equivalent
+3. Verify schema: Ensure required tables and columns exist before proceeding
+4. Common error: 'column users.onboarding_integration_step does not exist' indicates incomplete schema
+5. Do not proceed with code changes until database is properly configured
+
+**Always test database queries before implementing features that depend on them.**
+
 ### Quick Reference
 
 | Do | Don't |
