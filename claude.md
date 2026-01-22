@@ -627,3 +627,16 @@ Before adding new documentation sections:
 5. Check current rate limit status: `gh api rate_limit`
 
 **Why this matters**: GitHub API has rate limits that can cause agent failures, but most operations can be completed using local git commands as fallbacks.
+
+## GitHub API Rate Limit Handling
+
+**Before any GitHub operations:**
+1. Check rate limit status: `gh api rate_limit`
+2. If rate limited, wait 60+ seconds before retrying
+3. Use alternative approaches when API unavailable:
+   - Use `git` commands instead of `gh` CLI
+   - Perform operations locally and sync when API is available
+   - Document changes for manual PR creation
+4. Always include request ID in error reports for GitHub support
+
+**Common Error**: HTTP 403 API rate limit exceeded means you need to wait before retrying operations.
