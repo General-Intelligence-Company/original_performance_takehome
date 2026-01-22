@@ -20,3 +20,12 @@ This file provides guidance for AI coding agents working on this repository.
 4. **Avoid generic names that might conflict**
 
 **Why this matters**: Pattern analysis detected 2 occurrences (80% confidence) of agents creating branches with similar names, leading to confusion and conflicts when multiple agents work on the repository simultaneously.
+
+## Pull Request Creation
+
+When creating PRs:
+1. Try `gh pr create` command first
+2. If it fails due to permissions, provide manual PR creation link:
+   `https://github.com/OWNER/REPO/pull/new/BRANCH_NAME`
+3. Always include suggested PR title and description
+4. Confirm the branch has been pushed before attempting PR creation
