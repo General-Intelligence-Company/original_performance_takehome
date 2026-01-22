@@ -389,6 +389,17 @@ Before creating a branch:
 
 **Why verify the default branch?** Pattern analysis detected 3 occurrences (85% confidence) of agents assuming 'main' is the default branch when repositories use 'master', 'develop', or other branch names.
 
+## Branch Creation Best Practices
+
+**Always check for existing branches:**
+
+1. Check existing branches: `git branch -a | grep branch-name`
+2. Use unique, descriptive names with timestamps if needed: `docs/feature-name-$(date +%s)`
+3. If branch exists, use a variant: `docs/feature-name-v2` or `docs/feature-name-$(date +%m%d)`
+4. Fetch latest remote branches: `git fetch origin` before creating new branches
+
+**Why this matters**: Creating branches with names that already exist on remote causes push failures and wasted effort. Always verify branch name uniqueness before creating.
+
 ## Git Workflow for Documentation
 
 When modifying documentation files (especially shared ones like this file), follow these steps to avoid merge conflicts:
