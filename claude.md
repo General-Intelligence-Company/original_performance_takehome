@@ -87,6 +87,15 @@ Before creating branches or making changes:
 
 **Why this matters**: Pattern analysis detected 3 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
 
+## Database Prerequisites
+
+**Before any database operations:**
+1. Verify database connection: Check that DATABASE_URL or connection variables are set
+2. Test connectivity: `psql $DATABASE_URL -c 'SELECT 1'` or equivalent
+3. Verify schema: Ensure required tables and columns exist
+4. Common error: `column users.onboarding_integration_step does not exist` means schema is incomplete
+5. Do not proceed with code changes until database is properly configured
+
 ## Environment Setup
 
 Before running the Claude Code agent:
