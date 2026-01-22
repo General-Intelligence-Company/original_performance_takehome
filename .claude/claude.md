@@ -28,6 +28,16 @@ This file provides guidance for AI coding agents working on this repository.
 - Run `cat .claude/claude.md` to verify existence before updating
 - Search for alternative locations when the standard path doesn't exist
 
+## File Path Best Practices
+
+**Always verify your current working directory:**
+1. Run `pwd` to check current location
+2. Use relative paths from `/workspace/repo/` base
+3. Never assume paths like `/home/` or `/Users/` - these vary by environment
+4. If file read fails, check the actual file location with `ls -la`
+
+**Why this matters**: Agents often incorrectly assume paths like `/home/wcgw/work/` or `/Users/jsmith/` instead of checking `pwd` and using paths relative to `/workspace/repo/`. This leads to file operation failures and wasted time debugging incorrect paths.
+
 ## Branch Naming Best Practices
 
 **Use unique, descriptive branch names:**
