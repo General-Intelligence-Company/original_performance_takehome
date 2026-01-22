@@ -15,16 +15,20 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
-## ⚠️ Database Prerequisites
+## ⚠️ CRITICAL: Database Prerequisites
 
-**Before any database operations:**
-1. Verify database connection is properly configured
-2. Test connectivity: `psql $DATABASE_URL -c 'SELECT 1'` (if applicable)
-3. **Common Error**: `column users.onboarding_integration_step does not exist` indicates incomplete database schema
-4. **Action**: Do not proceed with code changes - contact system administrator for database migration
-5. This is a system-level issue that cannot be resolved by coding agents
+**Critical Error Pattern**: `column users.onboarding_integration_step does not exist`
 
-**Why this is critical**: Pattern analysis detected multiple occurrences of agents failing when attempting to fix database schema issues. These are infrastructure problems, not code problems.
+This error indicates missing database migrations and **prevents all agent operations**.
+
+**What to do:**
+1. **Stop all task execution immediately** - Do not continue with any coding tasks
+2. This is a **system-level infrastructure issue**, not a code problem
+3. **Contact administrators** to run required database migrations
+4. **Do NOT attempt to modify database schemas yourself** - This includes creating migrations, altering tables, or any schema changes
+5. Agent cannot proceed until this is resolved by the infrastructure team
+
+**Why this matters**: This error blocks all agent functionality and requires admin intervention. Attempting workarounds will cause cascading failures.
 
 ## GitHub API Rate Limits
 
