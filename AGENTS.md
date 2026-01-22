@@ -2,6 +2,19 @@
 
 This document contains troubleshooting information and guidelines for Claude agents working with this repository.
 
+## Database Prerequisites
+
+**Before starting any coding tasks:**
+
+1. **Database must be running and accessible**
+2. **If you encounter 'column users.onboarding_integration_step does not exist'**:
+   - This is a system infrastructure issue
+   - Contact administrators for database schema setup
+   - Do NOT attempt to fix schema yourself
+   - Cannot proceed with coding tasks until resolved
+
+**Error Pattern**: Database column errors indicate missing migrations - requires admin intervention.
+
 ## System Requirements
 
 Before running agents:
