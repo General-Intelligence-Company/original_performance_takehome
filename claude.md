@@ -2,6 +2,14 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## Before Adding Documentation
+
+Before creating new documentation:
+1. Check if `claude.md` or `AGENTS.md` already exists
+2. Read existing content to understand current guidelines
+3. Add to existing sections rather than creating duplicate guidance
+4. Use consistent formatting and style with existing documentation
+
 ## Git Workflow
 
 **Before creating any branch or making changes:**
