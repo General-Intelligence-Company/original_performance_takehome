@@ -48,6 +48,16 @@ Before beginning work, ensure:
 
 **Common Issue**: Agents fail completely when encountering database schema mismatches. Always verify schema compatibility before proceeding with database operations.
 
+## GitHub API Rate Limits
+
+**Before starting any GitHub operations:**
+1. **Check rate limit status**: `curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit`
+2. **If rate limited**, wait until reset time or use different authentication
+3. **Ensure GITHUB_TOKEN is properly set** and has sufficient permissions
+4. **Consider using GitHub CLI** (`gh`) which handles rate limiting better
+
+**Common error**: `HTTP 403: API rate limit exceeded` means you need to wait or use different credentials.
+
 ## Known Issues
 
 If you encounter database errors like `column users.onboarding_integration_step does not exist`, this is a system-level issue. Contact the development team as this prevents agent execution.
