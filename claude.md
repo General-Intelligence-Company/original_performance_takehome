@@ -513,17 +513,18 @@ Before using `gh` commands, be aware of rate limits:
 - Create branches and commits locally, push when API is available
 - Document changes for manual PR creation later
 
-## GitHub API Rate Limiting
+## GitHub API Rate Limit Handling
 
-**If you encounter 'API rate limit exceeded' errors:**
-
-1. **Wait 60+ seconds** before retrying API operations
-2. **Use git commands directly** instead of `gh` CLI when possible:
+**Before any GitHub operations:**
+1. Check rate limit status: `gh auth status` or `gh api rate_limit`
+2. If rate limited (HTTP 403), wait 60+ seconds before retrying
+3. Use git commands directly instead of gh CLI:
+   - Instead of `gh pr create`, use `git push` then create PR manually
    - Instead of `gh pr list`, use `git log --oneline --grep="Merge pull request"`
-   - Instead of `gh pr view`, check branch status with `git branch -r`
-3. **Batch API operations** and add delays between requests
-4. **For PR creation**, use `git push` first, then create PR manually if needed
-5. **Always include request ID and timestamp** in error reports for debugging
+   - Instead of `gh pr view`, use `git branch -r` to check branches
+4. For authentication issues, try `gh auth login --web` to refresh token
+
+**Error Pattern**: `HTTP 403: API rate limit exceeded` - always wait and retry with git commands
 
 **Common Scenario**: Multiple agent sessions running concurrently can quickly exhaust GitHub API limits. When this happens:
 - Switch to direct git commands for read operations
