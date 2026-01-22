@@ -588,6 +588,16 @@ If you see this error:
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
 
+## Database Prerequisites
+
+**Before any database operations:**
+1. Verify database connection is available
+2. Check that required schema exists
+3. If you encounter 'column does not exist' errors, STOP execution
+4. Contact development team for schema migration issues
+
+**Critical Error**: `column users.onboarding_integration_step does not exist` indicates incomplete database schema - do not proceed with task.
+
 ### Handling Database Schema Errors
 
 **If you encounter database schema errors:**
