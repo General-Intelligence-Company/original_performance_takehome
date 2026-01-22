@@ -108,11 +108,14 @@ To get consistent performance measurements:
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
 
-## File Naming
+## File Naming Conventions
 
-- Always use exact case sensitivity when working with files
-- Check for existing files before creating new ones: `ls -la | grep -i filename`
-- Repository uses lowercase `claude.md` not `CLAUDE.md`
+When creating or updating documentation files:
+
+1. **Use lowercase `claude.md`** for agent guidelines - NOT `CLAUDE.md`
+2. **Check if the file already exists** before creating a new one: `ls -la | grep -i filename`
+3. **If unsure about naming**, check existing files in the repository root
+4. **Always use exact case sensitivity** when working with files
 
 ## Merge Conflict Resolution
 
