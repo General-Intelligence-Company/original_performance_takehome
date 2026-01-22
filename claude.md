@@ -4,7 +4,17 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## File Naming
 
-**Important**: The documentation file for this repository is `claude.md` (lowercase). Always:
+**Important**: This repository uses `claude.md` (lowercase), not `CLAUDE.md`
+
+1. **Always check existing files first**: `ls -la | grep -i claude`
+2. **Use exact case sensitivity**: File operations are case-sensitive
+3. **The canonical documentation file is**: `claude.md` (lowercase)
+
+This prevents creating duplicate files with different casing.
+
+### Additional File Naming Guidance
+
+Always:
 1. Check if `claude.md` already exists before creating: `ls claude.md` or `git ls-files | grep claude.md`
 2. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
 3. If the file exists, read it first to understand existing structure before adding content
