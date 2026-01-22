@@ -221,6 +221,22 @@ Before creating branches or pushing changes:
 
 **Important**: Do not consider a PR task complete until it shows as mergeable without conflicts.
 
+## PR Merging Best Practices
+
+**When GitHub API merge fails (405 errors)**:
+1. Try `gh pr merge PR_NUMBER --merge` first
+2. If that fails, use git commands:
+   - `git fetch origin main`
+   - `git checkout main`
+   - `git merge BRANCH_NAME`
+   - `git push origin main`
+3. Always verify merge was successful with `git log --oneline -3`
+4. Clean up feature branch after successful merge
+
+**Prevention**:
+- Check PR mergeable status before attempting merge
+- Ensure branch is up to date with main
+
 ## Performance Measurement
 
 To get consistent performance measurements:
