@@ -453,6 +453,16 @@ When multiple agents may be working on documentation simultaneously:
 
 ## Database Connection Issues
 
+### System-Level Errors
+
+If you encounter database errors like 'column users.onboarding_integration_step does not exist':
+
+1. **This is a system-level database schema issue requiring human intervention**
+2. **Do NOT attempt to continue with the task** - this will fail
+3. **Report the error immediately**: 'Database schema issue detected - requires human intervention'
+4. The error typically indicates missing database migrations or schema updates
+5. Contact the development team to resolve the database schema before proceeding
+
 ### Database Requirements
 
 Before running Claude Code agent:
