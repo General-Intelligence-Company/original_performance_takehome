@@ -104,6 +104,15 @@ Before starting any coding task that involves database operations:
 
 **Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
 
+## Database Prerequisites
+
+**Before any database operations:**
+1. Verify database connection: Check that DATABASE_URL is set
+2. Test connectivity: `psql $DATABASE_URL -c 'SELECT 1'`
+3. Verify schema exists: Check required tables and columns exist
+4. **Known Issue**: Error 'column users.onboarding_integration_step does not exist' indicates incomplete schema - contact admin
+5. Do not proceed with code changes until database is properly configured
+
 ## Before Adding New Documentation Sections
 
 **Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
