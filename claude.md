@@ -43,6 +43,19 @@ Before starting any task, explore the repository to understand its current state
 
 **Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
 
+## Repository Assessment Checklist
+
+Before creating branches or making changes:
+
+1. **Check repository permissions**: `git remote -v` and test with small commit
+2. **Examine existing branches**: `git branch -a`
+3. **Review recent activity**: `git log --oneline -5`
+4. **Check for existing similar branches** to avoid duplication
+5. **Understand the workflow**: Are there existing PRs? What's the branch naming convention?
+6. **Verify you can push** to the intended branch
+
+**Why**: Pattern analysis detected 7 occurrences (85% confidence) of agents creating branches and pushing without verifying repository permissions or understanding branch structure.
+
 ## Before Adding Documentation
 
 Before creating new documentation:
