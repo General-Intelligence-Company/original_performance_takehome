@@ -515,7 +515,17 @@ Before using `gh` commands, be aware of rate limits:
 
 ## GitHub API Rate Limiting
 
-**If you encounter 'API rate limit exceeded' errors:**
+**Before using GitHub CLI commands:**
+1. Check rate limit status: `gh auth status`
+2. If rate limited, use git commands directly instead of gh CLI
+3. For authentication errors, wait 1 hour before retrying
+4. Alternative commands when rate limited:
+   - Instead of `gh pr create`, use git push and create PR via web interface
+   - Instead of `gh pr list`, use `git log --oneline` to see recent changes
+
+**Error Pattern**: If you see 'HTTP 403: API rate limit exceeded', stop using gh commands and switch to git alternatives.
+
+**If you encounter rate limit errors:**
 
 1. **Wait 60+ seconds** before retrying API operations
 2. **Use git commands directly** instead of `gh` CLI when possible:
