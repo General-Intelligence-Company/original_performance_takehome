@@ -58,3 +58,11 @@ When creating PRs:
 **Common Error**: '429: Rate limit exceeded' - Wait for reset time before retrying
 
 **Why this matters**: Pattern analysis detected 2 occurrences (80% confidence) of agents not checking rate limits before making GitHub API calls, leading to failures and blocked operations.
+
+## E2B Sandbox Limits
+
+If you encounter '429: Rate limit exceeded... maximum number of concurrent E2B sandboxes (600)' errors:
+1. This indicates the E2B service is at capacity
+2. Wait and retry after a few minutes
+3. Contact E2B support if the issue persists: https://e2b.dev/docs/getting-help
+4. Consider using alternative approaches that don't require sandbox execution
