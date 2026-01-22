@@ -141,3 +141,13 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 3. **Add new content as additional sections** rather than replacing existing content
 4. **Test that the merged content is well-formatted** before completing the merge
 5. **Complete the resolution**: Use `git add <file>` and `git rebase --continue` (or `git merge --continue`) to finalize
+
+## File Management Guidelines
+
+Before creating documentation files:
+
+1. Check for existing files with similar names: `find . -name "*claude*" -type f`
+2. Check both lowercase and uppercase variations
+3. If files exist, read them first to understand the existing structure
+4. Update existing files rather than creating duplicates
+5. Follow existing naming conventions in the repository
