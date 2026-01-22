@@ -344,12 +344,14 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 
 ## Working with Shared Documentation
 
-Before modifying `claude.md` or other shared files:
+Before modifying `claude.md` or other shared docs:
 
-1. **Pull latest changes**: Run `git pull origin main` to get the most recent version
-2. **Check existing content**: Read the file's current content before making changes
-3. **Append, don't replace**: If adding new sections, append to existing content rather than replacing
-4. **Use descriptive branches**: Use branch names that indicate the type of documentation being added (e.g., `docs/feature-name`)
+1. Run `git fetch origin main` to get latest changes
+2. Check for open PRs: `gh pr list | grep claude.md`
+3. If other PRs are modifying the same file, coordinate or wait
+4. When multiple agents work simultaneously, expect merge conflicts
+5. Always read existing content before adding new sections
+6. Use descriptive branch names to indicate what you're adding
 
 ## Multi-Agent Documentation Workflow
 
