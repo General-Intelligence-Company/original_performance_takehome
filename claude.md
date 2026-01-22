@@ -179,6 +179,16 @@ Before starting any coding task that involves database operations:
 
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
 
+## Before Requesting Documentation Changes
+
+**Always verify current state first:**
+1. Read the target file completely: `cat claude.md` or `cat AGENTS.md`
+2. Search for existing similar content: `grep -i "keyword" filename`
+3. Check recent commits: `git log --oneline -10 -- filename`
+4. Only request new sections if they don't already exist or need significant updates
+
+**Avoid**: Requesting duplicate sections that create redundant or conflicting documentation.
+
 ## Experimental Code Management
 
 When making experimental changes to this codebase:
