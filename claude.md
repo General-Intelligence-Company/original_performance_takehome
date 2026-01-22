@@ -336,6 +336,8 @@ When encountering merge conflicts:
 6. Run `git rebase --continue` to complete the rebase
 7. Use `git push --force-with-lease` to update your branch safely
 
+**Never abandon a branch due to rebase conflicts - always resolve them.** Rebase conflicts are normal and expected when working on shared code. Abandoning branches wastes work and creates orphaned code.
+
 ## Safe Force Pushing
 
 When you need to force push after a rebase, always use `git push --force-with-lease` instead of `git push --force`. This prevents accidentally overwriting commits that were pushed by others since your last fetch.
