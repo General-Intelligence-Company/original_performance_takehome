@@ -84,6 +84,18 @@ When encountering merge conflicts:
 
 ## Testing
 
+**Before running tests**:
+1. Check `README.md` for specific test instructions
+2. Look for existing test files: `ls tests/` or `find . -name '*test*.py'`
+3. Check for requirements: `ls requirements*.txt` or `pyproject.toml`
+
+**Standard test command for this repo**: `python tests/submission_tests.py`
+
+If tests fail, check for:
+- Missing dependencies
+- Wrong Python version
+- Required environment setup
+
 - Always examine test files first: `ls tests/` and `head tests/*.py`
 - Check for specific test runners or requirements
 - Verify test commands work before documenting them
