@@ -302,6 +302,16 @@ When encountering merge conflicts:
 
 **Why this matters**: Mechanical conflict resolution creates inconsistent or duplicate content.
 
+## Branch Naming Conventions
+
+Before creating a branch:
+1. Check existing branches: `git branch -a | grep <topic>`
+2. Use descriptive, unique names with timestamps: `docs/topic-name-$(date +%s)`
+3. Avoid generic names that might conflict with existing work
+4. Include issue/PR numbers when applicable: `docs/fix-123-database-prereqs`
+
+**Why this matters**: Pattern analysis detected 4 occurrences (80% confidence) where agents created branches with similar names leading to confusion and conflicts.
+
 ## Branch Management
 
 **Before creating branches:**
