@@ -60,6 +60,18 @@ Before running tests, always verify the test setup:
 
 The test file `tests/submission_tests.py` uses Python's unittest framework and tests both correctness and performance against various benchmarks.
 
+## Git Workflow Best Practices
+
+Before creating branches or pushing changes:
+
+1. **Always fetch latest main**: `git fetch origin main`
+2. **Check if main has new commits**: `git log --oneline origin/main..HEAD`
+3. **If main has moved, rebase your branch**: `git rebase origin/main`
+4. **Resolve any conflicts before pushing**
+5. **Use `--force-with-lease` for force pushes**: This avoids overwriting others' work
+
+**Why this matters**: Pushing without checking if main has moved can cause merge conflicts and force other collaborators to resolve issues that could have been handled locally.
+
 ## Performance Measurement
 
 To get consistent performance measurements:
