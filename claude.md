@@ -226,3 +226,15 @@ Before modifying `claude.md` or other shared files:
 2. **Check existing content**: Read the file's current content before making changes
 3. **Append, don't replace**: If adding new sections, append to existing content rather than replacing
 4. **Use descriptive branches**: Use branch names that indicate the type of documentation being added (e.g., `docs/feature-name`)
+
+## Multi-Agent Documentation Workflow
+
+When multiple agents may be working on documentation simultaneously:
+
+1. **Check file existence**: `ls claude.md` before creating/editing
+2. **Read current content**: `cat claude.md` to understand existing structure
+3. **Plan additions**: Identify where new content fits logically
+4. **Merge, don't replace**: Preserve existing sections when adding new ones
+5. **Expect conflicts**: Multiple agents may edit documentation simultaneously
+
+**Note**: Always assume `claude.md` may have been modified since you last checked.
