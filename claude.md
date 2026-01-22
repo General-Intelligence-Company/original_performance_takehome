@@ -29,6 +29,16 @@ This file provides guidance for AI coding agents working on this repository.
 
 This prevents creating duplicate files with different casing, which causes confusion and content fragmentation when multiple agents work on the repository.
 
+## File Case Sensitivity Guidelines
+
+**Always use correct file case:**
+1. Check existing files: `ls -la | grep -i claude` or `git ls-files | grep -i claude`
+2. Use lowercase `claude.md` as the canonical documentation file
+3. If both `claude.md` and `CLAUDE.md` exist, work with lowercase version
+4. File systems are case-sensitive - always verify correct case before editing
+
+**Why this matters**: Working with wrong case file leads to changes being made to non-canonical files.
+
 ## Pre-work Checklist for Documentation Updates
 
 Before modifying `claude.md` or other documentation:
