@@ -11,3 +11,12 @@ When making experimental changes to this codebase:
 5. **Clean up promptly**: Remove experimental files when done: `rm -f *_experimental.py`
 
 This prevents accumulation of files like `perf_takehome_interleaved.py`, `perf_takehome_roundmajor.py`, etc.
+
+## Pull Request Best Practices
+
+### After Creating a PR
+1. **Verify PR status**: Check that mergeable_state is 'clean' not 'dirty'
+2. **Review the changes**: Use `git show` or check the PR diff online
+3. **If conflicts exist**: Rebase against main and force push
+4. **Test locally**: Run any relevant tests before marking complete
+5. **Document what was added**: Clearly state what sections/content were added
