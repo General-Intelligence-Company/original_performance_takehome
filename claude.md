@@ -648,3 +648,16 @@ If you see this error:
 4. Always include request ID in error reports for GitHub support
 
 **Common Error**: HTTP 403 API rate limit exceeded means you need to wait before retrying operations.
+
+## GitHub API Rate Limits - Quick Reference
+
+**Before using GitHub CLI commands:**
+1. Check API status: `gh api rate_limit`
+2. If rate limited, use fallback approaches:
+   - Push with git: `git push origin branch-name`
+   - Create PR manually via web interface
+   - Wait for rate limit reset (usually within an hour)
+
+**Common error patterns:**
+- `API rate limit exceeded` - Use manual git operations
+- `HTTP 403` errors - Usually indicates rate limiting
