@@ -51,6 +51,18 @@ When modifying documentation files (especially shared ones like this file), foll
 3. If file exists, read current content to understand structure
 4. When resolving merge conflicts, preserve all existing sections and add new content appropriately
 
+## Handling Merge Conflicts
+
+When encountering merge conflicts:
+
+1. Run `git pull origin main --rebase` to rebase your changes
+2. If conflicts occur, edit the conflicted files to resolve them
+3. Look for conflict markers `<<<<<<<`, `=======`, `>>>>>>>`
+4. Keep the best parts from both versions
+5. Run `git add <filename>` to mark conflicts as resolved
+6. Run `git rebase --continue` to complete the rebase
+7. Use `git push --force-with-lease` to update your branch safely
+
 ## Testing
 
 - Always examine test files first: `ls tests/` and `head tests/*.py`
