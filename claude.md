@@ -126,3 +126,11 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 3. **Add new content as additional sections** rather than replacing existing content
 4. **Test that the merged content is well-formatted** before completing the merge
 5. **Complete the resolution**: Use `git add <file>` and `git rebase --continue` (or `git merge --continue`) to finalize
+
+## File Management
+
+**Before creating or modifying claude.md:**
+1. Check if the file already exists: `git ls-files claude.md`
+2. If it exists, read the current content first
+3. Always merge new content with existing content rather than overwriting
+4. Use `git status` to check for uncommitted changes before making modifications
