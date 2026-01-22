@@ -244,3 +244,14 @@ Before modifying `claude.md` or other shared files:
 2. **Check existing content**: Read the file's current content before making changes
 3. **Append, don't replace**: If adding new sections, append to existing content rather than replacing
 4. **Use descriptive branches**: Use branch names that indicate the type of documentation being added (e.g., `docs/feature-name`)
+
+## Coordinating claude.md Updates
+
+Before updating `claude.md`:
+
+1. **Fetch latest changes**: Run `git fetch origin main` to get latest changes
+2. **Check for open PRs**: Run `gh pr list` to see open PRs that might modify `claude.md`
+3. **Coordinate if needed**: If multiple PRs are pending, coordinate with other agents or wait for merges
+4. **Rebase before pushing**: Use `git rebase origin/main` before pushing to minimize conflicts
+
+**Why this matters**: Multiple agents often work on `claude.md` simultaneously, leading to merge conflicts. Following these steps helps prevent conflicts and ensures smoother collaboration.
