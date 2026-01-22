@@ -48,6 +48,19 @@ Before creating new documentation:
 
 **Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
 
+## Git Conflict Resolution
+
+When encountering merge conflicts:
+
+1. Run `git status` to see conflicted files
+2. Open conflicted files and look for `<<<<<<<`, `=======`, `>>>>>>>` markers
+3. Manually edit to keep desired content from both sides
+4. Remove all conflict markers
+5. Run `git add <filename>` to mark as resolved
+6. Continue with `git rebase --continue` or `git merge --continue`
+
+Always verify the final merged content is coherent before continuing.
+
 ## Branch Management
 
 **Before creating branches:**
