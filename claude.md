@@ -44,6 +44,11 @@ Before creating new documentation:
 
 ## Testing
 
+- Always examine test files first: `ls tests/` and `head tests/*.py`
+- Check for specific test runners or requirements
+- Verify test commands work before documenting them
+- Look for existing test documentation in README.md
+
 Before running tests, always verify the test setup:
 
 1. **Check that test files exist**: `ls tests/`
