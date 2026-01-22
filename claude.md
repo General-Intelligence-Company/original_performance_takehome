@@ -487,3 +487,16 @@ Before using `gh` commands, be aware of rate limits:
 **Common Error**: `API rate limit exceeded for user ID`
 - Use web interface as fallback
 - Inform user of rate limit status
+
+## GitHub API Rate Limits
+
+**If you encounter 'API rate limit exceeded' errors:**
+1. Wait for rate limit reset (usually within an hour)
+2. Use local git operations instead of GitHub CLI when possible
+3. For critical updates, use manual git commands: `git push origin branch-name`
+4. Check GitHub status page if API issues persist
+
+**Alternative approaches when GitHub API is unavailable:**
+- Use `git` commands instead of `gh` CLI
+- Create branches and commits locally, push when API is available
+- Document changes for manual PR creation later
