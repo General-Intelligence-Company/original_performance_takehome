@@ -70,6 +70,8 @@ If you encounter `column users.onboarding_integration_step does not exist` or si
 - **This is a system-level database issue** requiring administrator intervention
 - **Do NOT attempt to fix the schema yourself**
 - **Contact the development team** or system administrator
+- Requires database migrations to be run by admin
+- Agent cannot proceed with any tasks until resolved
 - This error prevents agent execution entirely and must be resolved at the infrastructure level
 
 ## Database Schema Issues
