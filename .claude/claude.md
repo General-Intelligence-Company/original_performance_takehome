@@ -10,6 +10,16 @@ This file provides guidance for AI coding agents working on this repository.
 - **If missing**: Create the `.claude/` directory and `claude.md` file at this standard location
 - **Never search** for alternative locations like root `CLAUDE.md` or other paths
 
+## File Path Guidelines
+
+**Always verify your current working directory first:**
+1. Run `pwd` to check current location
+2. Run `ls -la` to see available files
+3. Use relative paths from the working directory (e.g., `./claude.md` not `/Users/username/repos/claude.md`)
+4. Check if files exist before trying to read them: `test -f filename && echo "exists" || echo "not found"`
+
+**Why this matters**: Agents often assume incorrect absolute paths like `/Users/llmuser/repos/` exist, leading to file operation failures. Always verify your location and use relative paths.
+
 ## File Operations
 
 **Direct File Access**: When reading or updating files, attempt the operation directly rather than pre-checking existence with commands like `ls -la`, `cat`, or `find`. Tools like `Read` gracefully handle non-existent files by returning an error, which is more efficient than a separate existence check.
