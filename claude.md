@@ -33,10 +33,11 @@ This file provides guidance for AI coding agents working on this repository.
 ## GitHub API Rate Limits
 
 **Before performing git operations:**
-1. Check authentication: `gh auth status`
-2. If rate limited (HTTP 403), use direct git commands instead of GitHub CLI
-3. Wait before retrying operations if you encounter rate limit errors
-4. Consider using personal access tokens for higher rate limits
+1. **Check rate limit status proactively**: `gh api rate_limit` to see remaining requests
+2. Check authentication: `gh auth status`
+3. If rate limited (HTTP 403), use direct git commands instead of GitHub CLI
+4. Wait before retrying operations if you encounter rate limit errors
+5. Consider using personal access tokens for higher rate limits
 
 **Error Pattern**: 'HTTP 403: API rate limit exceeded' means you need to wait or use alternative approaches.
 
@@ -45,6 +46,7 @@ This file provides guidance for AI coding agents working on this repository.
 2. Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
 3. Wait at least 60 seconds before retrying (use exponential backoff)
 4. Consider using `git push --set-upstream origin branch-name` instead of API calls
+5. Always include request ID and timestamp in error reports for debugging
 
 **Alternative approaches when rate limited:**
 - Use `git` commands directly instead of `gh` CLI for most operations
@@ -52,6 +54,7 @@ This file provides guidance for AI coding agents working on this repository.
 - For pushing changes: `git push origin branch-name` works without API calls
 - Create branches and commits locally, push when API is available
 - Create PRs via GitHub web interface when CLI is rate limited
+- Batch API operations and add delays between requests
 
 **Fallback commands when rate limited:**
 | Instead of | Use |
@@ -61,6 +64,8 @@ This file provides guidance for AI coding agents working on this repository.
 | `gh pr view` | `git log origin/main..HEAD` to see your commits |
 | `gh api` calls | Direct git commands or wait for rate limit reset |
 | `gh auth status` | Check rate limit at https://api.github.com/rate_limit |
+
+**Common Scenario**: Multiple agent sessions running concurrently can quickly exhaust GitHub API limits. When this happens, switch to direct git commands for read operations and space out API-dependent operations.
 
 **Why this matters**: Pattern analysis detected 10 occurrences (100% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
 
