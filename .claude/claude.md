@@ -47,3 +47,14 @@ When creating PRs:
    `https://github.com/OWNER/REPO/pull/new/BRANCH_NAME`
 3. Always include suggested PR title and description
 4. Confirm the branch has been pushed before attempting PR creation
+
+## GitHub API Rate Limits
+
+1. **Check rate limit status** - Use `gh api rate_limit` to check current limits before operations
+2. **Wait if rate limited** - If you hit limits, wait for the reset time shown in the response
+3. **Use authenticated requests** - Ensure you're using authenticated GitHub CLI for higher limits
+4. **Implement backoff** - Use exponential backoff for retries on rate limit errors
+
+**Common Error**: '429: Rate limit exceeded' - Wait for reset time before retrying
+
+**Why this matters**: Pattern analysis detected 2 occurrences (80% confidence) of agents not checking rate limits before making GitHub API calls, leading to failures and blocked operations.
