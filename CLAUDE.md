@@ -53,6 +53,21 @@ When you need to force push (e.g., after rebasing or amending pushed commits):
 
 This prevents accidentally destroying other agents' work on shared branches.
 
+## Merge Conflict Prevention
+
+### Before Making Changes
+1. **Fetch latest changes**: Always run `git fetch origin main` to get latest changes
+2. **Check target file state**: Check if your target files have been modified: `git show main:filename`
+3. **Read current content**: If files were recently updated, read the current content first
+4. **Consider rebasing**: Consider rebasing your branch: `git rebase origin/main`
+5. **Safe force push**: Use `git push --force-with-lease` when force pushing after rebase
+
+### When Conflicts Occur
+1. **Read both sides**: Read both conflicting sections carefully
+2. **Merge logically**: Merge content logically rather than choosing one side
+3. **Test the result**: Test the merged result makes sense
+4. **Continue rebase**: Continue rebase with `git rebase --continue`
+
 ## Before Creating Branches
 
 1. **Check repository permissions**: Can you push to main? Do you need to fork?
