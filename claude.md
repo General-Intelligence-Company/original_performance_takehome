@@ -113,6 +113,25 @@ This prevents merge conflicts and reduces manual conflict resolution work.
 
 **Always test database queries before implementing features that depend on them.**
 
+## Database Operations
+
+Before executing database queries or operations:
+1. Check current schema: `DESCRIBE table_name` (MySQL) or `\d table_name` (PostgreSQL)
+2. Verify column existence before referencing in queries
+3. Use proper error handling for database connection failures
+4. Check if database migrations need to be run first: review migration files or run migration status command
+
+**Common Error**: 'column does not exist' - Always verify schema matches expectations before writing queries.
+
+**Proactive Schema Inspection Commands:**
+| Database | Command | Purpose |
+|----------|---------|---------|
+| PostgreSQL | `\d table_name` | Show table structure |
+| PostgreSQL | `\dt` | List all tables |
+| MySQL | `DESCRIBE table_name` | Show table structure |
+| MySQL | `SHOW TABLES` | List all tables |
+| SQLite | `.schema table_name` | Show table structure |
+
 ### Quick Reference
 
 | Do | Don't |
