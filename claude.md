@@ -157,3 +157,13 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 4. Always merge new content with existing content rather than overwriting
 5. Use `git status` to check for uncommitted changes before making modifications
 6. Follow existing naming conventions in the repository
+
+## Git Workflow Verification
+
+**Before any git operations:**
+
+1. Run `git status` to check current state
+2. Run `git branch -a` to see all existing branches
+3. Check repository permissions and settings
+4. Verify you're on the correct base branch before creating feature branches
+5. Use descriptive branch names that follow project conventions
