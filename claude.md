@@ -113,6 +113,9 @@ Before starting any coding task that involves database operations:
 3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
 4. **Use consistent formatting**: Match existing markdown style and section hierarchy
 5. **Only create new sections**: When the content is genuinely missing from the file
+6. **Check for open PRs**: Run `gh pr list` to see if similar content is being added
+7. **Review recent file changes**: Run `git log --oneline -10 main -- <filename>` to see recent modifications
+8. **Use unique branch names**: Include timestamps or specific identifiers (e.g., `docs/add-testing-guidelines-20240115`) to avoid conflicts with concurrent work
 
 **Common sections that already exist** (check before adding):
 - File Naming Conventions
