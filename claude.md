@@ -43,6 +43,16 @@ Before starting any task, explore the repository to understand its current state
 
 **Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
 
+## Environment Setup
+
+Before starting any coding task that involves database operations:
+
+1. **Verify database connectivity**: Check that required database columns exist
+2. **Ensure environment variables are set**: Verify all necessary configuration is in place
+3. **Test basic database operations**: Run a simple query to confirm the schema matches expectations
+
+**Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
+
 ## Before Adding Documentation
 
 Before creating new documentation:
