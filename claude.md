@@ -79,6 +79,15 @@ Before creating new documentation:
 
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
 
+## Documentation Coordination
+
+### Before Adding New Sections
+1. **Read entire file first**: Use `cat claude.md` to review all existing content
+2. **Check for similar sections**: Look for existing sections that cover the same topic
+3. **Check recent PRs**: Use `gh pr list` to see if similar documentation is being added
+4. **If section exists**: Enhance existing section rather than creating duplicate
+5. **If similar PR exists**: Coordinate or wait for merge before adding related content
+
 ## Experimental Code Management
 
 When making experimental changes to this codebase:
