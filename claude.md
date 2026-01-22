@@ -141,15 +141,17 @@ Before creating branches or making changes:
 
 ## GitHub API Rate Limits
 
-**Before using GitHub CLI commands:**
+**Before using GitHub CLI or API operations:**
 1. Check current rate limit status: `gh api rate_limit`
 2. If rate limited, use fallback approach:
+   - Use local git operations instead of `gh` commands
    - Push branch manually: `git push origin branch-name`
-   - Create PR via GitHub web interface
+   - Create branches and commits locally, push when API is available
+   - Create PR via GitHub web interface if needed
    - Wait for rate limit reset (typically hourly)
 3. For bulk operations, space out API calls to avoid hitting limits
 
-**Common rate limit error**: `HTTP 403: API rate limit exceeded` - this prevents all GitHub CLI operations
+**Error pattern**: If you see 'HTTP 403: API rate limit exceeded', immediately switch to local git workflow.
 
 **If you encounter HTTP 403 'API rate limit exceeded':**
 - Stop making GitHub API calls immediately
