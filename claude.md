@@ -47,15 +47,21 @@ This error indicates missing database migrations and **prevents all agent operat
 
 **If you find existing content, stop and enhance it instead of creating a duplicate.**
 
-## GitHub API Rate Limits
+## GitHub API Rate Limits - CONSOLIDATED SECTION
 
 **Before performing GitHub operations:**
-1. Check rate limit status: `gh auth status`
-2. If rate limited (HTTP 403), wait before retrying
+1. Check rate limit status: `gh api rate_limit` or `gh auth status`
+2. If rate limited (HTTP 403), wait for hourly reset before retrying
 3. Use direct git commands instead of `gh` CLI when rate limited
-4. For authentication issues, try `gh auth login --with-token < token_file`
+
+**Fallback commands when rate limited:**
+- Use `git push` instead of `gh pr create`
+- Use web UI for PR creation
+- Wait for hourly reset
 
 **Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
+
+**Note**: This guidance consolidates multiple observed rate limit failures. Do not duplicate this section elsewhere in the file.
 
 ## File Naming Conventions
 
