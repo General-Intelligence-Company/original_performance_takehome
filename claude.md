@@ -418,3 +418,14 @@ If you encounter database connection errors (such as 'column does not exist' or 
 5. After changes, verify the flow and organization make sense
 
 **Tip**: Use `git show main:filename` to see the latest version before making changes
+
+### Preventing Duplicate PRs
+
+Before adding new documentation sections:
+
+1. **Check if similar content already exists in the file**: Read through `claude.md` completely and search for keywords related to your topic
+2. **Review recent PRs to see if the same documentation is being added**: Run `gh pr list --state all | grep -i "docs\|documentation\|claude"` to find related PRs
+3. **Search for existing branches with similar names**: Run `git branch -a | grep -i "docs/"` to find branches like `docs/git-workflow`, `docs/add-git-*`, etc.
+4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
+
+**Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
