@@ -41,6 +41,17 @@ Before modifying `claude.md` or other documentation:
 
 This prevents merge conflicts and reduces manual conflict resolution work.
 
+## Database Prerequisites
+
+**Before starting any task:**
+
+1. Verify database connectivity
+2. If you encounter `column users.onboarding_integration_step does not exist`, this is a system-level schema issue
+3. **STOP IMMEDIATELY** - Do not attempt to fix database schema issues
+4. Report to development team: This error prevents all agent execution
+
+**Critical**: Database schema errors require developer intervention and cannot be resolved by agents.
+
 ### Quick Reference
 
 | Do | Don't |
