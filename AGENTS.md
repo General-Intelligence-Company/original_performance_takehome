@@ -61,40 +61,18 @@ Before beginning work, ensure:
 
 **Common Issue**: Agents fail completely when encountering database schema mismatches. Always verify schema compatibility before proceeding with database operations.
 
-## Known System Issues
+## Known Issues
 
-### Database Column Errors
-
-If you encounter `column users.onboarding_integration_step does not exist` or similar database column errors:
-
-- **This is a system-level database issue** requiring administrator intervention
-- **Do NOT attempt to fix the schema yourself**
-- **Contact the development team** or system administrator
-- Requires database migrations to be run by admin
-- Agent cannot proceed with any tasks until resolved
-- This error prevents agent execution entirely and must be resolved at the infrastructure level
+If you encounter database errors like `column users.onboarding_integration_step does not exist`, this is a system-level issue. Contact the development team as this prevents agent execution.
 
 ## Known Infrastructure Issues
 
-**Database Column Error**: `column users.onboarding_integration_step does not exist`
+**Database Schema Errors:**
 
-- This is a known system-level database schema issue
-- **Do not attempt to fix this yourself**
-- Contact development team or system administrator
-- Requires database migrations to be run by admin
-- Agent cannot proceed with any tasks until resolved
-- This error prevents agent execution entirely
+If you encounter `column users.onboarding_integration_step does not exist` or similar database column errors:
 
-## Database Schema Issues
-
-**If you encounter `column users.onboarding_integration_step does not exist` error:**
-1. This is a known infrastructure issue requiring database migrations
-2. Do NOT attempt to fix database schema yourself
-3. Contact the development team or system administrator
-4. This error prevents agent execution entirely - wait for admin resolution
-5. Document the error with full error message and timestamp for support
-
-**General database connection issues:**
-- Always verify database connectivity before starting work
-- Schema mismatches require infrastructure team intervention
-- Report database errors immediately rather than attempting fixes
+1. **This is a database migration/schema issue**
+2. **Cannot be fixed at the agent level**
+3. **Contact infrastructure team or system administrator**
+4. **Do not attempt database migrations or schema changes**
+5. **Wait for infrastructure team to resolve**
