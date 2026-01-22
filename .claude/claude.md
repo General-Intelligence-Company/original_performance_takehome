@@ -77,3 +77,19 @@ If you encounter '429: Rate limit exceeded... maximum number of concurrent E2B s
 4. **Interaction flow**: Show complete multi-turn conversation sequences
 
 **Why this matters**: Pattern analysis detected 2 occurrences (90% confidence) of sessions being logged with only titles instead of full conversation messages, preventing identification of repeated mistakes and creation of better guidance documentation.
+
+## Handling Redundant PRs
+
+**When PR content already exists in main:**
+
+1. **Verify the content**: Confirm the content is truly already present and comprehensive in main
+2. **Close the PR**: Use `gh pr close <number> --comment "Content already exists in main"`
+3. **Do NOT create empty commits**: Never use `--allow-empty` to force merges of redundant content
+4. **Document findings**: Record what was found in main vs what the PR was trying to add
+
+**Don't**:
+- Use `--allow-empty` commits for redundant content
+- Force merge PRs when the content already exists
+- Create duplicate documentation
+
+**Why this matters**: Empty commits for redundant content pollute the git history, create confusion about what changes were actually made, and can mask issues where PRs were created unnecessarily.
