@@ -60,22 +60,24 @@ Before starting any coding task that involves database operations:
 
 **Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
 
-## Before Adding Documentation
-
-Before creating new documentation:
-1. Check if `claude.md` or `AGENTS.md` already exists
-2. Read existing content to understand current guidelines
-3. Add to existing sections rather than creating duplicate guidance
-4. Use consistent formatting and style with existing documentation
-
 ## Before Adding New Documentation Sections
 
-**Critical**: Always verify content doesn't already exist on main before creating PRs.
+**Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
 
-1. **Check main branch state**: Run `git show main:claude.md` to see the current file content
-2. **Search for existing sections**: Read through all headings and content to find similar topics
-3. **Enhance existing content**: If similar content exists, improve it rather than adding new sections
-4. **Only create new sections**: When the content is genuinely missing from the file
+1. **Read the full file first**: Run `cat claude.md` or `git show main:claude.md` to see all current content
+2. **Check for existing sections**: Search for similar content that might already exist
+3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
+4. **Use consistent formatting**: Match existing markdown style and section hierarchy
+5. **Only create new sections**: When the content is genuinely missing from the file
+
+**Common sections that already exist** (check before adding):
+- File Naming Conventions
+- File Management
+- Git Workflow Best Practices
+- Testing guidelines
+- Merge Conflict Resolution
+- Branch Management
+- PR Creation/Merging Best Practices
 
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
 
