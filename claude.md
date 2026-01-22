@@ -502,11 +502,13 @@ Before using `gh` commands, be aware of rate limits:
 
 ## GitHub API Rate Limits
 
-**If you encounter 'API rate limit exceeded' errors:**
-1. Wait for rate limit reset (usually within an hour)
-2. Use local git operations instead of GitHub CLI when possible
-3. For critical updates, use manual git commands: `git push origin branch-name`
-4. Check GitHub status page if API issues persist
+**Before performing git operations:**
+1. Check rate limit status: `gh api rate_limit`
+2. If rate limited, use git CLI directly: `git push`, `git pull`
+3. For PR operations when rate limited, use manual git workflows
+4. Wait 1 hour before retrying GitHub API calls after hitting limits
+
+**Common Error**: `HTTP 403: API rate limit exceeded` - This means you must stop using GitHub API calls immediately and switch to git CLI commands.
 
 **Alternative approaches when GitHub API is unavailable:**
 - Use `git` commands instead of `gh` CLI
