@@ -2,15 +2,20 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
-## File Naming
+## File Naming Conventions
 
-**Important**: This repository uses `claude.md` (lowercase), not `CLAUDE.md`
+**Before creating documentation files**:
+1. Check existing files: `ls *.md`
+2. Use consistent case - this repository uses lowercase: `claude.md`, `agents.md`
+3. Never create both `CLAUDE.md` and `claude.md` - use lowercase only
+4. If file exists, read it first: `cat claude.md`
 
-1. **Always check existing files first**: `ls -la | grep -i claude`
-2. **Use exact case sensitivity**: File operations are case-sensitive
-3. **The canonical documentation file is**: `claude.md` (lowercase)
+**Common mistake**: Creating `CLAUDE.md` when `claude.md` already exists
+**Solution**: Always use lowercase and check existing files first
 
-This prevents creating duplicate files with different casing.
+### Why This Matters
+
+This prevents creating duplicate files with different casing, which causes confusion and content fragmentation when multiple agents work on the repository.
 
 ## Pre-work Checklist for Documentation Updates
 
@@ -24,12 +29,14 @@ Before modifying `claude.md` or other documentation:
 
 This prevents merge conflicts and reduces manual conflict resolution work.
 
-### Additional File Naming Guidance
+### Quick Reference
 
-Always:
-1. Check if `claude.md` already exists before creating: `ls claude.md` or `git ls-files | grep claude.md`
-2. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
-3. If the file exists, read it first to understand existing structure before adding content
+| Do | Don't |
+|----|-------|
+| `ls *.md` before creating | Create files without checking |
+| Use `claude.md` (lowercase) | Use `CLAUDE.md` |
+| Read existing content first | Overwrite without reading |
+| Merge content if duplicates exist | Keep duplicate files |
 
 ## Repository Exploration Checklist
 
@@ -71,6 +78,18 @@ Before creating new documentation:
 4. **Only create new sections**: When the content is genuinely missing from the file
 
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
+
+## Experimental Code Management
+
+When making experimental changes to this codebase:
+
+1. **Use version control, not file copies**: Make changes directly and use git for version control
+2. **Use git branches for different approaches**: Instead of creating multiple files like `file_v2.py`, create feature branches
+3. **Commit working versions before experiments**: Always `git commit` a working state before trying major changes
+4. **If creating experimental files**: Use a consistent naming pattern (e.g., `*_experimental.py`)
+5. **Clean up promptly**: Remove experimental files when done: `rm -f *_experimental.py`
+
+This prevents accumulation of files like `perf_takehome_interleaved.py`, `perf_takehome_roundmajor.py`, etc.
 
 ## Before Any Git Operations
 
@@ -292,34 +311,10 @@ To get consistent performance measurements:
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
 
-## File Naming Conventions
+## Additional File Management Notes
 
-For documentation files:
-1. Use lowercase: `claude.md`, `agents.md`, `readme.md`
-2. Check existing files before creating new ones: `ls *.md`
-3. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
-4. If unsure about naming, check existing files in the repository root
-5. Be consistent with existing repository naming patterns
-
-When creating or updating documentation files:
-
-1. **Use lowercase `claude.md`** for agent guidelines - NOT `CLAUDE.md`
-2. **Check if the file already exists** before creating a new one: `ls -la | grep -i filename`
-3. **If unsure about naming**, check existing files in the repository root
-4. **Always use exact case sensitivity** when working with files
-
-Before creating new files:
-1. Run `ls -la` to check existing files and naming patterns
-2. Use consistent case - if `README.md` exists, use uppercase; if `readme.md` exists, use lowercase
-3. Follow the repository's established conventions
-4. Avoid creating duplicate files with different cases
-
-**Common Issue**: Creating `CLAUDE.md` when `claude.md` already exists, or vice versa. Always check first.
-
-**Documentation files:**
-- Use lowercase for documentation files: `claude.md`, not `CLAUDE.md`
-- Check existing repository structure before creating new files
-- Use consistent naming patterns that match the project's conventions
+- See "File Naming Conventions" section at the top of this file for the canonical guidance
+- Always verify file case sensitivity before creating new documentation files
 
 ## Merge Conflict Resolution
 
