@@ -386,3 +386,15 @@ If you encounter database connection errors (such as 'column does not exist' or 
 4. **Report issues immediately**: Do not attempt to proceed with tasks that require database access if connections are failing
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
+
+## Documentation Updates
+
+### Before Adding Content
+
+1. Read the ENTIRE current documentation file
+2. Identify existing sections that might overlap with your planned addition
+3. If similar content exists, enhance it rather than duplicating
+4. If adding new content, ensure it complements existing structure
+5. After changes, verify the flow and organization make sense
+
+**Tip**: Use `git show main:filename` to see the latest version before making changes
