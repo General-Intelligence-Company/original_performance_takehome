@@ -4,6 +4,14 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## Git Workflow
 
+Before creating any branches or making changes:
+
+1. Run `git status` to check current state
+2. Run `git fetch origin main` to get latest changes
+3. Check if files you plan to modify already exist on main
+4. If files exist, read them first to understand existing content
+5. Only then create branches and make changes to avoid conflicts
+
 Before creating branches or pushing:
 
 1. Check current status: `git status`
