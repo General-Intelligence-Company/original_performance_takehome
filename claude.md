@@ -16,11 +16,15 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Before creating branches or pushing:**
 
-1. Check current status: `git status`
-2. List existing branches: `git branch -a`
-3. Check if you have push permissions: `git remote -v`
-4. Work on the main branch first, only create feature branches if explicitly needed
-5. Commit changes locally before attempting to push: `git add . && git commit -m "description"`
+1. Always run `git pull origin main` to get latest changes
+2. Check `git status` to ensure clean working directory
+3. List existing branches: `git branch -a`
+4. Check if you have push permissions: `git remote -v`
+5. Only then create feature branches or push changes
+6. Commit changes locally before attempting to push: `git add . && git commit -m "description"`
+7. If push fails due to remote changes, use `git pull --rebase` to resolve
+
+**Common Issue**: Push failures due to new commits on main that weren't pulled first.
 
 **Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
 
