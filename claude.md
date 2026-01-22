@@ -30,39 +30,16 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Why this matters**: Database schema issues are infrastructure problems that cannot be resolved at the agent level and require admin intervention.
 
-## GitHub API Rate Limits
+## GitHub API Rate Limits - CONSOLIDATED SECTION
 
-**Before performing git operations:**
-1. Check authentication: `gh auth status`
-2. If rate limited (HTTP 403), use direct git commands instead of GitHub CLI
-3. Wait before retrying operations if you encounter rate limit errors
-4. Consider using personal access tokens for higher rate limits
-
-**Error Pattern**: 'HTTP 403: API rate limit exceeded' means you need to wait or use alternative approaches.
-
-**If you encounter rate limit errors:**
-1. Stop making GitHub API calls immediately
-2. Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
-3. Wait at least 60 seconds before retrying (use exponential backoff)
-4. Consider using `git push --set-upstream origin branch-name` instead of API calls
-
-**Alternative approaches when rate limited:**
-- Use `git` commands directly instead of `gh` CLI for most operations
-- For checking branches: `git branch -a` instead of `gh api`
-- For pushing changes: `git push origin branch-name` works without API calls
-- Create branches and commits locally, push when API is available
-- Create PRs via GitHub web interface when CLI is rate limited
+**Before any GitHub operations:** Always check rate limits with `gh api rate_limit`
 
 **Fallback commands when rate limited:**
-| Instead of | Use |
-|------------|-----|
-| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
-| `gh pr list` | `git branch -r` to see remote branches |
-| `gh pr view` | `git log origin/main..HEAD` to see your commits |
-| `gh api` calls | Direct git commands or wait for rate limit reset |
-| `gh auth status` | Check rate limit at https://api.github.com/rate_limit |
+- Use `git push` instead of `gh pr create`
+- Use web UI for PR creation
+- Wait for hourly reset
 
-**Why this matters**: Pattern analysis detected 10 occurrences (100% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
+**Note**: This guidance consolidates multiple observed rate limit failures. Do not duplicate this section elsewhere in the file.
 
 ## File Naming Conventions
 
