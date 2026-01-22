@@ -285,6 +285,13 @@ To get consistent performance measurements:
 
 ## File Naming Conventions
 
+For documentation files:
+1. Use lowercase: `claude.md`, `agents.md`, `readme.md`
+2. Check existing files before creating new ones: `ls *.md`
+3. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
+4. If unsure about naming, check existing files in the repository root
+5. Be consistent with existing repository naming patterns
+
 When creating or updating documentation files:
 
 1. **Use lowercase `claude.md`** for agent guidelines - NOT `CLAUDE.md`
