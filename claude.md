@@ -260,6 +260,8 @@ Before starting any coding task that involves database operations:
 - Branch Management
 - PR Creation/Merging Best Practices
 
+**Rate Limiting Documentation:** Before adding rate limit guidance, note that this is one of the most commonly duplicated sections. Use `grep -i 'rate.limit\|api.limit' claude.md` to check existing content. Always enhance existing sections rather than create new ones.
+
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
 
 ## Experimental Code Management
