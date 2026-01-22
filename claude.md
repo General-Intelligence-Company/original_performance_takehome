@@ -2,6 +2,18 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## Repository Exploration Checklist
+
+Before starting any task, explore the repository to understand its current state:
+
+1. **List all files and directories**: `ls -la`
+2. **Check all branches**: `git branch -a`
+3. **Review recent commits**: `git log --oneline -5`
+4. **Find existing documentation**: `ls *.md`
+5. **Understand the current state** before making changes
+
+**Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
+
 ## Before Adding Documentation
 
 Before creating new documentation:
@@ -48,8 +60,11 @@ When modifying documentation files (especially shared ones like this file), foll
 
 1. Always run `git pull origin main` before creating branches
 2. Check if the target file already exists: `git show main:filename`
-3. If file exists, read current content to understand structure
-4. When resolving merge conflicts, preserve all existing sections and add new content appropriately
+3. If file exists, read current content first
+4. Plan to merge/extend existing content rather than overwrite
+5. When resolving merge conflicts, preserve all useful sections from both versions
+
+**Note**: Multiple agents may work on documentation simultaneously. Always assume `claude.md` or `AGENTS.md` may have been modified since you last checked.
 
 ## Handling Merge Conflicts
 
@@ -131,6 +146,8 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 
 **Before creating or modifying claude.md:**
 1. Check if the file already exists: `git ls-files claude.md`
-2. If it exists, read the current content first
-3. Always merge new content with existing content rather than overwriting
-4. Use `git status` to check for uncommitted changes before making modifications
+2. Check for similar files with different cases: `find . -name "*claude*" -type f`
+3. If it exists, read the current content first
+4. Always merge new content with existing content rather than overwriting
+5. Use `git status` to check for uncommitted changes before making modifications
+6. Follow existing naming conventions in the repository
