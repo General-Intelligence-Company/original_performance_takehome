@@ -149,6 +149,17 @@ Before creating branches or pushing changes:
 
 **Why this matters**: Pushing without checking if main has moved can cause merge conflicts and force other collaborators to resolve issues that could have been handled locally.
 
+## PR Creation Best Practices
+
+**After creating any PR:**
+
+1. **Verify mergeable status**: `gh pr view <pr-number> --json mergeable,mergeStateStatus`
+2. **Check for conflicts**: Ensure `mergeStateStatus` is `CLEAN` not `DIRTY`
+3. **If conflicts exist**: Rebase with `git rebase origin/main` and force push
+4. **Always test locally** before marking complete
+
+**Important**: Do not consider a PR task complete until it shows as mergeable without conflicts.
+
 ## Performance Measurement
 
 To get consistent performance measurements:
