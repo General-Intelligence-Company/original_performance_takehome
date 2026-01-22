@@ -28,3 +28,11 @@ This is not a code issue - it requires infrastructure-level intervention.
 If agent startup fails:
 - Use manual git commands instead of agent automation
 - Perform tasks step-by-step with verification at each stage
+
+## Database Issues
+
+If you encounter database errors like 'column users.onboarding_integration_step does not exist':
+1. This indicates a schema mismatch in the agent system
+2. Report this error to system administrators
+3. This is not a repository-specific issue but an agent platform issue
+4. Try using a different agent or manual git commands as fallback
