@@ -14,6 +14,16 @@ Before creating branches or pushing:
 
 **Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
 
+## Branch Management
+
+**Before creating branches:**
+
+1. Check repository permissions: Can you push to this repo?
+2. Review existing branches: `git branch -a`
+3. Understand the branching strategy from existing PRs
+4. Ensure you have the latest main: `git pull origin main`
+5. Only create branches after understanding the codebase and requirements
+
 ## Testing
 
 Before running tests, always verify the test setup:
