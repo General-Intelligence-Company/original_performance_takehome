@@ -209,6 +209,19 @@ When encountering merge conflicts:
 
 **Why**: Mechanical conflict resolution can create inconsistent or duplicate content. Always review the final result as a coherent whole.
 
+## Merge Conflict Resolution Best Practices
+
+**When resolving conflicts:**
+1. Read both versions of conflicted content carefully
+2. Preserve ALL valuable information from both sides
+3. Merge complementary sections intelligently rather than choosing one side
+4. After resolving, read the entire merged file: `cat filename`
+5. Ensure sections flow logically and don't contradict each other
+6. Remove all conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+7. Test that any commands or examples still work
+
+**Why this matters**: Mechanical conflict resolution creates inconsistent or duplicate content.
+
 ## Branch Management
 
 **Before creating branches:**
