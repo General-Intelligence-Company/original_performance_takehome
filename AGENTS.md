@@ -74,6 +74,17 @@ If you encounter `column users.onboarding_integration_step does not exist` or si
 - Agent cannot proceed with any tasks until resolved
 - This error prevents agent execution entirely and must be resolved at the infrastructure level
 
+## Known Infrastructure Issues
+
+**Database Column Error**: `column users.onboarding_integration_step does not exist`
+
+- This is a known system-level database schema issue
+- **Do not attempt to fix this yourself**
+- Contact development team or system administrator
+- Requires database migrations to be run by admin
+- Agent cannot proceed with any tasks until resolved
+- This error prevents agent execution entirely
+
 ## Database Schema Issues
 
 **If you encounter `column users.onboarding_integration_step does not exist` error:**
