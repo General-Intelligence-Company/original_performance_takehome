@@ -48,6 +48,15 @@ When creating PRs:
 3. Always include suggested PR title and description
 4. Confirm the branch has been pushed before attempting PR creation
 
+## Handling Already-Merged Content
+
+When PR content already exists in main:
+1. **Do NOT create empty commits** with `--allow-empty`
+2. **Close the PR with explanation**: `gh pr close <number> --comment "Closing this PR as the changes have already been incorporated into main"`
+3. **Verify first**: Confirm that main actually contains the PR's intended changes before closing
+
+**Why this matters**: Pattern analysis detected 2 occurrences (82% confidence) of agents creating empty commits when PR content was already merged, which pollutes git history and creates confusion.
+
 ## GitHub API Rate Limits
 
 1. **Check rate limit status** - Use `gh api rate_limit` to check current limits before operations
