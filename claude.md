@@ -12,6 +12,18 @@ This file provides guidance for AI coding agents working on this repository.
 
 This prevents creating duplicate files with different casing.
 
+## Pre-work Checklist for Documentation Updates
+
+Before modifying `claude.md` or other documentation:
+
+1. Run `git fetch origin main` to get latest changes
+2. Run `git pull origin main` if on main branch
+3. Run `gh pr list` to check for open PRs that might conflict
+4. Only then create your feature branch
+5. When conflicts occur, read both versions carefully and preserve all valuable content
+
+This prevents merge conflicts and reduces manual conflict resolution work.
+
 ### Additional File Naming Guidance
 
 Always:
