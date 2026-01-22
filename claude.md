@@ -117,6 +117,12 @@ When creating or updating documentation files:
 3. **If unsure about naming**, check existing files in the repository root
 4. **Always use exact case sensitivity** when working with files
 
+Before creating new files:
+1. Run `ls -la` to check existing files and naming patterns
+2. Use consistent case - if `README.md` exists, use uppercase; if `readme.md` exists, use lowercase
+3. Follow the repository's established conventions
+4. Avoid creating duplicate files with different cases
+
 ## Merge Conflict Resolution
 
 When encountering merge conflicts in `claude.md` or other documentation files:
