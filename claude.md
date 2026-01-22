@@ -108,11 +108,12 @@ Before starting any coding task that involves database operations:
 
 **Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
 
-1. **Read the full file first**: Run `cat claude.md` or `git show main:claude.md` to see all current content
-2. **Check for existing sections**: Search for similar content that might already exist
-3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
-4. **Use consistent formatting**: Match existing markdown style and section hierarchy
-5. **Only create new sections**: When the content is genuinely missing from the file
+**Always check for existing content first:**
+1. **Read the entire file**: `cat claude.md` (or `git show main:claude.md` for remote version)
+2. **Search for related content**: `grep -i "keyword" claude.md` (check multiple keywords)
+3. **Check recent changes**: `git log --oneline -5 -- claude.md`
+4. **Enhance existing sections** instead of creating duplicates
+5. **Only add new sections** when content is genuinely missing
 
 **Common sections that already exist** (check before adding):
 - File Naming Conventions
@@ -122,8 +123,10 @@ Before starting any coding task that involves database operations:
 - Merge Conflict Resolution
 - Branch Management
 - PR Creation/Merging Best Practices
+- GitHub API Rate Limits
+- Database Connection Issues
 
-**Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
+**Why this matters**: Duplicate documentation creates confusion and maintenance overhead. Pattern analysis detected that coding agent sessions frequently attempt to add similar content without checking if it already exists. This leads to redundant PRs, merge conflicts, and fragmented documentation.
 
 ## Experimental Code Management
 
