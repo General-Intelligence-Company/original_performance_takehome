@@ -32,29 +32,37 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## GitHub API Rate Limits
 
-**Before using GitHub CLI**:
-1. Check rate limit status: `gh auth status`
-2. If rate limited (HTTP 403 errors), use git commands instead:
-   - Use `git push` instead of `gh pr create`
-   - Work locally and document changes for manual PR creation later
-   - Wait for rate limit reset (usually 1 hour)
+**Before performing git operations:**
+1. Check authentication: `gh auth status`
+2. If rate limited (HTTP 403), use direct git commands instead of GitHub CLI
+3. Wait before retrying operations if you encounter rate limit errors
+4. Consider using personal access tokens for higher rate limits
 
-**Fallback Commands**:
-- Instead of `gh pr create`: Document changes and create PR manually via web interface
-- Instead of `gh pr list`: Use `git log --oneline` to check recent changes
-- Use `curl -s https://api.github.com/rate_limit` to check remaining quota
+**Error Pattern**: 'HTTP 403: API rate limit exceeded' means you need to wait or use alternative approaches.
 
-**Common Error Patterns**:
-- `HTTP 403: API rate limit exceeded` - Wait before retrying or use git commands
-- `API rate limit exceeded for user ID` - Use web interface as fallback
+**If you encounter rate limit errors:**
+1. Stop making GitHub API calls immediately
+2. Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
+3. Wait at least 60 seconds before retrying (use exponential backoff)
+4. Consider using `git push --set-upstream origin branch-name` instead of API calls
 
-**Best Practices**:
-1. Batch API operations and add delays between requests
-2. Space out API-dependent operations when multiple agents are working
-3. Switch to direct git commands for read operations when rate limited
-4. Report rate limit errors with full context (request ID, timestamp) for debugging
+**Alternative approaches when rate limited:**
+- Use `git` commands directly instead of `gh` CLI for most operations
+- For checking branches: `git branch -a` instead of `gh api`
+- For pushing changes: `git push origin branch-name` works without API calls
+- Create branches and commits locally, push when API is available
+- Create PRs via GitHub web interface when CLI is rate limited
 
-**Why this matters**: Pattern analysis detected 7 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors. Using git commands as fallbacks allows work to continue even when the GitHub API is unavailable.
+**Fallback commands when rate limited:**
+| Instead of | Use |
+|------------|-----|
+| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
+| `gh pr list` | `git branch -r` to see remote branches |
+| `gh pr view` | `git log origin/main..HEAD` to see your commits |
+| `gh api` calls | Direct git commands or wait for rate limit reset |
+| `gh auth status` | Check rate limit at https://api.github.com/rate_limit |
+
+**Why this matters**: Pattern analysis detected 10 occurrences (100% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
 
 ## File Naming Conventions
 
@@ -612,4 +620,4 @@ Before adding new documentation sections:
 3. **Search for existing branches with similar names**: Run `git branch -a | grep -i "docs/"` to find branches like `docs/git-workflow`, `docs/add-git-*`, etc.
 4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
 
-**Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
+**Why this matters**: Multiple coding agent sessions often add similar documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
