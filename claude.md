@@ -531,3 +531,14 @@ Before using `gh` commands, be aware of rate limits:
 - Report the rate limit error with full context (request ID, timestamp) for troubleshooting
 
 **Why this matters**: API rate limit errors cause complete session failures. Using git commands as fallbacks allows work to continue even when the GitHub API is unavailable.
+
+## GitHub API Rate Limit Handling
+
+**If you encounter 'API rate limit exceeded' errors:**
+1. Wait 60+ seconds before retrying API operations
+2. Use git commands directly instead of `gh` CLI when possible:
+   - Instead of `gh pr list`, use `git log --oneline --grep="Merge pull request"`
+   - Instead of `gh pr view`, check branch status with `git branch -r`
+   - Instead of `gh pr create`, use `git push` first, then create PR manually if needed
+3. Always include request ID and timestamp in error reports
+4. Consider using local git operations for workflow steps that don't require API access
