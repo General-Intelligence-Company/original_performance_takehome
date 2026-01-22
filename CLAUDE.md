@@ -43,6 +43,24 @@ This prevents duplicate or conflicting sections from accumulating.
 4. **Test locally**: Run any relevant tests before marking complete
 5. **Document what was added**: Clearly state what sections/content were added
 
+## Branch and PR Management
+
+### When Changes Become Redundant
+
+1. **Close the PR with explanation**: Clearly explain why the PR is no longer needed (e.g., changes superseded, feature dropped, or content merged elsewhere)
+2. **Delete both local and remote branches**: `git branch -D branch-name` and `git push origin --delete branch-name`
+3. **Document partial incorporations**: If parts of the content were useful, mention what was incorporated and where
+
+This ensures clean branch history and prevents confusion from stale PRs.
+
+### When Conflicts Are Complex
+
+1. **Evaluate necessity**: Consider if the change is still needed given recent updates to main
+2. **Document resolution clearly**: If proceeding, describe what conflicts were resolved and how in the commit message
+3. **Update PR description**: Reflect the conflict resolution approach so reviewers understand the changes
+
+This prevents unintentional regressions and helps reviewers understand merged content.
+
 ## Safe Force Pushing
 
 When you need to force push (e.g., after rebasing or amending pushed commits):
