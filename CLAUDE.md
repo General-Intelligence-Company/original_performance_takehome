@@ -12,6 +12,18 @@ When making experimental changes to this codebase:
 
 This prevents accumulation of files like `perf_takehome_interleaved.py`, `perf_takehome_roundmajor.py`, etc.
 
+## Git Workflow for Documentation Updates
+
+Before making changes to `claude.md` or `CLAUDE.md`:
+
+1. **Fetch latest changes**: `git fetch origin main`
+2. **Check current state**: `git status`
+3. **Check for open PRs**: `gh pr list` - Look for PRs that might affect the same files
+4. **Pull latest if on main**: `git pull origin main`
+5. **Only then create your branch and make changes**
+
+This prevents merge conflicts when multiple agents update documentation simultaneously.
+
 ## Pull Request Best Practices
 
 ### After Creating a PR
