@@ -311,6 +311,14 @@ When encountering merge conflicts:
 4. Ensure you have the latest main: `git pull origin main`
 5. Only create branches after understanding the codebase and requirements
 
+## Branch Naming Best Practices
+
+**Use unique, descriptive branch names:**
+1. Check existing branches: `git branch -a | grep docs`
+2. Use timestamps for uniqueness: `docs/topic-name-$(date +%s)`
+3. Include specific feature: `docs/add-specific-guidance-timestamp`
+4. Avoid generic names like `docs/update-docs` or `docs/add-documentation`
+
 ## Git Workflow for Documentation
 
 When modifying documentation files (especially shared ones like this file), follow these steps to avoid merge conflicts:
