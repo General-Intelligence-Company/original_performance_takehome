@@ -187,7 +187,7 @@ Before running the Claude Code agent:
 5. **Check for open PRs** that might add similar content: `gh pr list --search "docs" --state=all --limit=10`
 6. **If similar content exists**, enhance it rather than duplicate
 7. **Only add new sections** when content is genuinely missing
-8. **Use descriptive branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
+8. **Use descriptive, unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-1737543000`)
 9. **Use consistent formatting**: Match existing markdown style and section hierarchy
 
 **Why**: Prevents duplicate sections and maintains documentation quality.
