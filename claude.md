@@ -29,6 +29,14 @@ Before creating new documentation:
 3. Add to existing sections rather than creating duplicate guidance
 4. Use consistent formatting and style with existing documentation
 
+## Before Any Git Operations
+
+1. **Always pull latest changes first**: `git pull origin main`
+2. **If push fails with 'remote has moved'**: Run `git pull --rebase` then push again
+3. **Common Issue**: Push failures occur when other agents have pushed commits while you were working
+
+This prevents merge conflicts and ensures you're working with the latest code.
+
 ## Git Workflow
 
 **Before creating any branch or making changes:**
