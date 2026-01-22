@@ -2,6 +2,21 @@
 
 This document contains troubleshooting information and guidelines for Claude agents working with this repository.
 
+## Database Schema Errors - STOP EXECUTION
+
+**Critical Infrastructure Error**: If you encounter any database column errors such as:
+- `column users.onboarding_integration_step does not exist`
+- `relation does not exist`
+- `column does not exist`
+
+**Immediately:**
+1. **STOP all task execution**
+2. **Report**: "Database schema incomplete - requires admin intervention"
+3. **Do NOT attempt code fixes or migrations**
+4. This is a system-level issue that blocks all agent operations
+
+This is a critical blocking error - do not proceed with any other tasks until resolved by administrators.
+
 ## Database Prerequisites
 
 **Before starting any coding tasks:**
