@@ -41,6 +41,20 @@ Before modifying `claude.md` or other documentation:
 
 This prevents merge conflicts and reduces manual conflict resolution work.
 
+### Before Updating Documentation Files
+
+**Always check for recent changes before starting work:**
+1. `git fetch origin main` - Get latest changes from remote
+2. `git log --oneline -5 main -- claude.md AGENTS.md` - Check recent commits to documentation
+3. `git diff main...HEAD -- claude.md AGENTS.md` - See if your branch conflicts with main
+4. `git pull --rebase origin main` - Rebase before creating your branch
+5. Consider coordinating with other agents if recent documentation changes exist
+
+**When resolving conflicts:**
+- Read both versions carefully
+- Preserve all valuable content from both sides
+- Merge complementary sections rather than choosing one version
+
 ### Quick Reference
 
 | Do | Don't |
