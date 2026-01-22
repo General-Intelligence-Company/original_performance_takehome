@@ -625,14 +625,16 @@ If you see this error:
 
 ## GitHub API Rate Limits
 
-**If you encounter 'HTTP 403: API rate limit exceeded' errors:**
-1. Wait 60+ seconds before retrying API operations
-2. Use git commands directly instead of `gh` CLI when possible:
+**Critical**: If you encounter 'HTTP 403: API rate limit exceeded' errors:
+1. Stop using GitHub CLI commands (gh) immediately
+2. Wait 60+ seconds before retrying API operations (use exponential backoff)
+3. Use git CLI commands instead:
    - Use `git push origin branch-name` instead of `gh pr create`
    - Use `git log --oneline` instead of `gh pr list`
-3. For PR creation, push the branch first, then create PR manually when API is available
-4. Always include request ID and timestamp when reporting rate limit errors
-5. Check current rate limit status: `gh api rate_limit`
+   - Use `git merge` for merging operations
+4. For PR creation, push the branch first, then create PR manually when API is available
+5. Always check rate limit status before starting: `gh api rate_limit` or `gh auth status`
+6. Always include request ID and timestamp when reporting rate limit errors
 
 **Why this matters**: GitHub API has rate limits that can cause agent failures, but most operations can be completed using local git commands as fallbacks.
 
