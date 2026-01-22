@@ -193,10 +193,12 @@ Before running the Claude Code agent:
 1. **Read the entire target file** to understand current structure: `cat claude.md` or `git show main:claude.md`
 2. **Check section headings**: `grep '^##' claude.md`
 3. **Search for similar existing sections** using grep: `grep -i "keyword" claude.md`
-4. **Check for open PRs** that might add similar content: `gh pr list --search "docs" --state=all --limit=10`
-5. **If similar content exists**, enhance it rather than duplicate
-6. **Use unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
-7. **Use consistent formatting**: Match existing markdown style and section hierarchy
+4. **Check recent commits** for related changes: `git log --oneline -5 -- claude.md`
+5. **Check for open PRs** that might add similar content: `gh pr list --search "docs" --state=all --limit=10`
+6. **If similar content exists**, enhance the existing section instead of creating a duplicate
+7. **Only add new sections** when content is genuinely missing
+8. **Use unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
+9. **Use consistent formatting**: Match existing markdown style and section hierarchy
 
 **Common sections that already exist** (check before adding):
 - Git workflow, branch management, merge conflicts
