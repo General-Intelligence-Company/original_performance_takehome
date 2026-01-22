@@ -531,3 +531,16 @@ Before using `gh` commands, be aware of rate limits:
 - Report the rate limit error with full context (request ID, timestamp) for troubleshooting
 
 **Why this matters**: API rate limit errors cause complete session failures. Using git commands as fallbacks allows work to continue even when the GitHub API is unavailable.
+
+## GitHub API Rate Limit Handling
+
+**Before any GitHub operations:**
+1. Check rate limit status: `gh api rate_limit`
+2. If rate limited, wait 60+ seconds before retrying
+3. Use alternative approaches when API unavailable:
+   - Use `git` commands instead of `gh` CLI
+   - Perform operations locally and sync when API is available
+   - Document changes for manual PR creation
+4. Always include request ID in error reports for GitHub support
+
+**Common Error**: HTTP 403 API rate limit exceeded means you need to wait before retrying operations.
