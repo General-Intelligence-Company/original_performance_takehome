@@ -48,8 +48,11 @@ When modifying documentation files (especially shared ones like this file), foll
 
 1. Always run `git pull origin main` before creating branches
 2. Check if the target file already exists: `git show main:filename`
-3. If file exists, read current content to understand structure
-4. When resolving merge conflicts, preserve all existing sections and add new content appropriately
+3. If file exists, read current content first
+4. Plan to merge/extend existing content rather than overwrite
+5. When resolving merge conflicts, preserve all useful sections from both versions
+
+**Note**: Multiple agents may work on documentation simultaneously. Always assume `claude.md` or `AGENTS.md` may have been modified since you last checked.
 
 ## Handling Merge Conflicts
 
