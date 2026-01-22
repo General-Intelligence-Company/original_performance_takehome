@@ -500,6 +500,21 @@ When multiple agents may be working on documentation simultaneously:
 
 **Note**: Always assume `claude.md` may have been modified since you last checked.
 
+## Database Schema Issues
+
+**Critical Error: `column users.onboarding_integration_step does not exist`**
+
+This is a known infrastructure issue that prevents agent execution.
+
+**Required Actions:**
+1. STOP all operations immediately
+2. This is NOT a code issue - it's a database schema/migration issue
+3. Contact system administrators or development team
+4. Do NOT attempt to fix database schema or run migrations
+5. Wait for infrastructure team to resolve before proceeding with any tasks
+
+**This error blocks all agent functionality and requires admin intervention.**
+
 ## Database Connection Issues
 
 ### System-Level Errors
