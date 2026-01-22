@@ -1,5 +1,7 @@
 # Agent Guidelines
 
+This document contains troubleshooting information and guidelines for Claude agents working with this repository.
+
 ## System Requirements
 
 Before running agents:
@@ -10,14 +12,19 @@ Before running agents:
 
 Common error: `column users.onboarding_integration_step does not exist` indicates database migration needed.
 
-## System Prerequisites
+## Agent Startup Issues
 
-**Before starting Claude Code agent**:
-1. Verify database schema is properly initialized
-2. Check that all required database columns exist
-3. If encountering 'users.onboarding_integration_step does not exist' error, contact system administrator
-4. Use alternative approaches if agent startup fails
+If you encounter 'Claude Code agent failed' with database errors:
 
-**Fallback options**:
+1. **This is a known infrastructure issue**: The agent startup process may fail due to backend service problems
+2. **Database schema mismatch**: The error `column users.onboarding_integration_step does not exist` indicates the database schema is out of sync
+3. **Contact infrastructure team**: Report the issue or try again later - this is typically a transient issue
+4. **No workaround available**: This error prevents the agent from performing any repository operations until resolved
+
+This is not a code issue - it requires infrastructure-level intervention.
+
+## Fallback Options
+
+If agent startup fails:
 - Use manual git commands instead of agent automation
 - Perform tasks step-by-step with verification at each stage
