@@ -462,3 +462,17 @@ Before adding new documentation sections:
 4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
 
 **Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
+
+## GitHub CLI Rate Limits
+
+Before using `gh` commands, be aware of rate limits:
+
+1. Check current rate limit: `gh api rate_limit`
+2. If rate limited (HTTP 403), use alternative approaches:
+   - Create PRs manually via web interface
+   - Use git commands instead of gh CLI where possible
+   - Wait for rate limit reset (shown in error message)
+
+**Common Error**: `API rate limit exceeded for user ID`
+- Use web interface as fallback
+- Inform user of rate limit status
