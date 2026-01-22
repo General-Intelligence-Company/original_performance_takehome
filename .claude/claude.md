@@ -39,6 +39,16 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Why this matters**: Pattern analysis detected 2 occurrences (80% confidence) of agents creating branches with similar names, leading to confusion and conflicts when multiple agents work on the repository simultaneously.
 
+## Merge Workflow Best Practices
+
+**Before merging any PR:**
+1. Always update main first: `git fetch origin && git checkout main && git pull origin main`
+2. Check if main has moved ahead: look for "Your branch is behind" messages
+3. If main moved, the PR branch may need rebasing or conflict resolution
+4. Only then proceed with merge operations
+
+**Common mistake:** Attempting merges without updating main first, causing avoidable conflicts.
+
 ## Pull Request Creation
 
 When creating PRs:
