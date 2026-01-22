@@ -108,11 +108,17 @@ Before starting any coding task that involves database operations:
 
 **Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
 
-1. **Read the full file first**: Run `cat claude.md` or `git show main:claude.md` to see all current content
-2. **Check for existing sections**: Search for similar content that might already exist
-3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
-4. **Use consistent formatting**: Match existing markdown style and section hierarchy
-5. **Only create new sections**: When the content is genuinely missing from the file
+**Always check existing content first:**
+1. Read entire file: `cat claude.md` or `cat AGENTS.md`
+2. Check section headers: `grep '^##' filename.md`
+3. Search for similar topics before adding new sections
+4. If similar content exists, enhance existing section instead of creating duplicates
+5. Ensure new sections complement rather than repeat existing guidance
+
+**Additional verification steps:**
+- Run `git show main:claude.md` to see the latest committed version
+- Use consistent formatting that matches existing markdown style and section hierarchy
+- Only create new sections when the content is genuinely missing from the file
 
 **Common sections that already exist** (check before adding):
 - File Naming Conventions
