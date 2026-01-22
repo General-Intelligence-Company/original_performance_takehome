@@ -138,6 +138,8 @@ Before creating new files:
 3. Follow the repository's established conventions
 4. Avoid creating duplicate files with different cases
 
+**Common Issue**: Creating `CLAUDE.md` when `claude.md` already exists, or vice versa. Always check first.
+
 ## Merge Conflict Resolution
 
 When encountering merge conflicts in `claude.md` or other documentation files:
