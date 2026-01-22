@@ -352,3 +352,14 @@ When multiple agents may be working on documentation simultaneously:
 5. **Expect conflicts**: Multiple agents may edit documentation simultaneously
 
 **Note**: Always assume `claude.md` may have been modified since you last checked.
+
+## Database Connection Issues
+
+If you encounter database connection errors (such as 'column does not exist' or similar schema errors):
+
+1. **Check if the database is properly initialized**: Verify the database exists and has been set up correctly
+2. **Verify schema migrations are up to date**: Run any pending migrations before attempting database operations
+3. **Consider using offline mode**: If database operations are not essential for the current task, proceed without them
+4. **Report issues immediately**: Do not attempt to proceed with tasks that require database access if connections are failing
+
+**Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
