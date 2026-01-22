@@ -47,6 +47,22 @@ Before creating new documentation:
 
 This prevents merge conflicts and ensures you're working with the latest code.
 
+## Merge Conflict Prevention and Resolution
+
+**Prevention (Always do before starting work):**
+1. `git fetch origin main` - Get latest changes
+2. `git show main:filename` - Check if target files exist and their current state
+3. Read existing content to understand structure before making changes
+
+**When conflicts occur:**
+1. `git status` - See which files have conflicts
+2. Open conflicted files and look for `<<<<<<<`, `=======`, `>>>>>>>` markers
+3. Manually edit to combine desired content from both sides
+4. Remove all conflict markers completely
+5. `git add filename` - Mark as resolved
+6. `git rebase --continue` or `git merge --continue`
+7. Verify final content is coherent
+
 ## Git Workflow
 
 **Before creating any branch or making changes:**
