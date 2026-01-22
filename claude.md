@@ -189,10 +189,13 @@ Before starting any coding task that involves database operations:
 
 1. **Read the entire target file** to understand current structure: `cat claude.md` or `git show main:claude.md`
 2. **Search for similar existing sections** using grep: `grep -i "keyword" claude.md`
-3. **Check for open PRs** that might add similar content: `gh pr list`
-4. **If similar content exists**, enhance it rather than duplicate
-5. **Use unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
-6. **Use consistent formatting**: Match existing markdown style and section hierarchy
+3. **Check recent commits for related changes**: `git log --oneline -10 -- claude.md`
+4. **Check for open PRs** that might add similar content: `gh pr list`
+5. **If similar content exists**, enhance it rather than duplicate
+6. **Use descriptive branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
+7. **Use consistent formatting**: Match existing markdown style and section hierarchy
+
+**Why**: Prevents duplicate sections and maintains documentation quality.
 
 **Common sections that already exist** (check before adding):
 - File Naming Conventions
