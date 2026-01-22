@@ -30,11 +30,27 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Before performing GitHub operations:**
 1. Check rate limit status: `gh auth status`
-2. If rate limited (HTTP 403), wait before retrying
+2. If rate limited (HTTP 403), immediately switch to direct git commands
 3. Use direct git commands instead of `gh` CLI when rate limited
 4. For authentication issues, try `gh auth login --with-token < token_file`
 
-**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
+**If you encounter HTTP 403 'API rate limit exceeded':**
+- Stop making GitHub API calls immediately
+- Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
+- Wait at least 1 hour before retrying GitHub API operations after hitting limits
+- Consider using `git push --set-upstream origin branch-name` instead of API calls
+
+**Fallback commands when rate limited:**
+| Instead of | Use |
+|------------|-----|
+| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
+| `gh pr list` | `git branch -r` to see remote branches |
+| `gh pr view` | `git log origin/main..HEAD` to see your commits |
+| `gh api` calls | Direct git commands or wait for rate limit reset |
+
+**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting at least 1 hour before retry.
+
+**Why this matters**: Pattern analysis detected multiple occurrences of agents failing due to GitHub API rate limit exceeded errors. Using git CLI as a fallback allows work to continue.
 
 ## File Naming Conventions
 
@@ -132,25 +148,6 @@ Before creating branches or making changes:
 6. **Verify you can push** to the intended branch
 
 **Why**: Pattern analysis detected 7 occurrences (85% confidence) of agents creating branches and pushing without verifying repository permissions or understanding branch structure.
-
-## GitHub API Rate Limits
-
-**If you encounter HTTP 403 'API rate limit exceeded':**
-- Stop making GitHub API calls immediately
-- Use git CLI commands instead: `git push`, `git pull`, `git checkout`
-- For PR operations, use `gh` CLI with authentication or manual git workflows
-- Wait before retrying API operations
-- Consider using `git push --set-upstream origin branch-name` instead of API calls
-
-**Fallback commands when rate limited:**
-| Instead of | Use |
-|------------|-----|
-| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
-| `gh pr list` | `git branch -r` to see remote branches |
-| `gh pr view` | `git log origin/main..HEAD` to see your commits |
-| `gh api` calls | Direct git commands or wait for rate limit reset |
-
-**Why this matters**: Pattern analysis detected multiple occurrences of agents failing due to GitHub API rate limit exceeded errors. Using git CLI as a fallback allows work to continue.
 
 ## Environment Setup
 
