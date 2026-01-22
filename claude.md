@@ -28,13 +28,29 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## GitHub API Rate Limits
 
-**Before performing GitHub operations:**
+**Before using GitHub CLI**:
 1. Check rate limit status: `gh auth status`
-2. If rate limited (HTTP 403), wait before retrying
-3. Use direct git commands instead of `gh` CLI when rate limited
-4. For authentication issues, try `gh auth login --with-token < token_file`
+2. If rate limited (HTTP 403 errors), use git commands instead:
+   - Use `git push` instead of `gh pr create`
+   - Work locally and document changes for manual PR creation later
+   - Wait for rate limit reset (usually 1 hour)
 
-**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
+**Fallback Commands**:
+- Instead of `gh pr create`: Document changes and create PR manually via web interface
+- Instead of `gh pr list`: Use `git log --oneline` to check recent changes
+- Use `curl -s https://api.github.com/rate_limit` to check remaining quota
+
+**Common Error Patterns**:
+- `HTTP 403: API rate limit exceeded` - Wait before retrying or use git commands
+- `API rate limit exceeded for user ID` - Use web interface as fallback
+
+**Best Practices**:
+1. Batch API operations and add delays between requests
+2. Space out API-dependent operations when multiple agents are working
+3. Switch to direct git commands for read operations when rate limited
+4. Report rate limit errors with full context (request ID, timestamp) for debugging
+
+**Why this matters**: Pattern analysis detected 7 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors. Using git commands as fallbacks allows work to continue even when the GitHub API is unavailable.
 
 ## File Naming Conventions
 
@@ -132,35 +148,6 @@ Before creating branches or making changes:
 6. **Verify you can push** to the intended branch
 
 **Why**: Pattern analysis detected 7 occurrences (85% confidence) of agents creating branches and pushing without verifying repository permissions or understanding branch structure.
-
-## GitHub API Rate Limits
-
-**Before using GitHub CLI commands:**
-1. Check current rate limit status: `gh api rate_limit`
-2. If rate limited, use fallback approach:
-   - Push branch manually: `git push origin branch-name`
-   - Create PR via GitHub web interface
-   - Wait for rate limit reset (typically hourly)
-3. For bulk operations, space out API calls to avoid hitting limits
-
-**Common rate limit error**: `HTTP 403: API rate limit exceeded` - this prevents all GitHub CLI operations
-
-**If you encounter HTTP 403 'API rate limit exceeded':**
-- Stop making GitHub API calls immediately
-- Use git CLI commands instead: `git push`, `git pull`, `git checkout`
-- For PR operations, use `gh` CLI with authentication or manual git workflows
-- Wait before retrying API operations
-- Consider using `git push --set-upstream origin branch-name` instead of API calls
-
-**Fallback commands when rate limited:**
-| Instead of | Use |
-|------------|-----|
-| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
-| `gh pr list` | `git branch -r` to see remote branches |
-| `gh pr view` | `git log origin/main..HEAD` to see your commits |
-| `gh api` calls | Direct git commands or wait for rate limit reset |
-
-**Why this matters**: Pattern analysis detected 7 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors. Using git CLI as a fallback allows work to continue.
 
 ## Environment Setup
 
@@ -610,16 +597,3 @@ Before adding new documentation sections:
 4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
 
 **Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
-
-## GitHub API Rate Limits
-
-**If you encounter 'HTTP 403: API rate limit exceeded' errors:**
-1. Wait 60+ seconds before retrying API operations
-2. Use git commands directly instead of `gh` CLI when possible:
-   - Use `git push origin branch-name` instead of `gh pr create`
-   - Use `git log --oneline` instead of `gh pr list`
-3. For PR creation, push the branch first, then create PR manually when API is available
-4. Always include request ID and timestamp when reporting rate limit errors
-5. Check current rate limit status: `gh api rate_limit`
-
-**Why this matters**: GitHub API has rate limits that can cause agent failures, but most operations can be completed using local git commands as fallbacks.
