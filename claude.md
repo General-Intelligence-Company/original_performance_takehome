@@ -41,6 +41,11 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Error Pattern**: 'HTTP 403: API rate limit exceeded' means you need to wait or use alternative approaches.
 
+**Check rate limit status without using gh CLI:**
+```bash
+curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit
+```
+
 **If you encounter rate limit errors:**
 1. Stop making GitHub API calls immediately
 2. Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
