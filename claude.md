@@ -30,6 +30,23 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Why this matters**: Database schema issues are infrastructure problems that cannot be resolved at the agent level and require admin intervention.
 
+## ⚠️ CRITICAL: Check for Existing Documentation Before Adding
+
+**Before adding ANY new section to claude.md:**
+1. Read the ENTIRE file: `cat claude.md`
+2. Search for similar topics: `grep -i "keyword" claude.md`
+3. Check all section headers: `grep "^##" claude.md`
+4. Check for related PRs: `gh pr list --search "docs"`
+5. If similar content exists, ENHANCE it rather than duplicate
+
+**Common sections that already exist:**
+- Database Prerequisites
+- GitHub API Rate Limits
+- Git Workflow/Pull Before Push
+- Documentation Guidelines
+
+**If you find existing content, stop and enhance it instead of creating a duplicate.**
+
 ## GitHub API Rate Limits
 
 **Before performing git operations:**
