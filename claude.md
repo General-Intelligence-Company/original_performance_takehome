@@ -531,3 +531,16 @@ Before using `gh` commands, be aware of rate limits:
 - Report the rate limit error with full context (request ID, timestamp) for troubleshooting
 
 **Why this matters**: API rate limit errors cause complete session failures. Using git commands as fallbacks allows work to continue even when the GitHub API is unavailable.
+
+## GitHub API Rate Limits
+
+**If you encounter 'HTTP 403: API rate limit exceeded' errors:**
+1. Wait 60+ seconds before retrying API operations
+2. Use git commands directly instead of `gh` CLI when possible:
+   - Use `git push origin branch-name` instead of `gh pr create`
+   - Use `git log --oneline` instead of `gh pr list`
+3. For PR creation, push the branch first, then create PR manually when API is available
+4. Always include request ID and timestamp when reporting rate limit errors
+5. Check current rate limit status: `gh api rate_limit`
+
+**Why this matters**: GitHub API has rate limits that can cause agent failures, but most operations can be completed using local git commands as fallbacks.
