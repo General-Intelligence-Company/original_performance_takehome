@@ -163,6 +163,16 @@ Before starting any task, explore the repository to understand its current state
 
 **Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
 
+## File Location Verification
+
+**Before reading or editing any files:**
+1. Run `pwd` to confirm working directory
+2. Use `ls -la` to verify file existence and location
+3. The documentation file may be at either `claude.md` (root) or `.claude/claude.md`
+4. Always use absolute paths or verify relative paths from current directory
+
+**Why this matters**: Pattern analysis detected agents consistently confusing file paths between `.claude/claude.md` and `claude.md`, leading to edits on wrong files or failed operations.
+
 ## File Investigation
 
 **Before assuming file naming issues or creating documentation for problems**:
