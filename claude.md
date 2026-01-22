@@ -39,6 +39,17 @@ Before creating new documentation:
 3. Add to existing sections rather than creating duplicate guidance
 4. Use consistent formatting and style with existing documentation
 
+## Before Adding New Documentation Sections
+
+**Critical**: Always verify content doesn't already exist on main before creating PRs.
+
+1. **Check main branch state**: Run `git show main:claude.md` to see the current file content
+2. **Search for existing sections**: Read through all headings and content to find similar topics
+3. **Enhance existing content**: If similar content exists, improve it rather than adding new sections
+4. **Only create new sections**: When the content is genuinely missing from the file
+
+**Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
+
 ## Before Any Git Operations
 
 1. **Always pull latest changes first**: `git pull origin main`
