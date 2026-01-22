@@ -14,6 +14,8 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
+**Why this matters**: Other agents may have pushed changes while you were working. Always sync with remote before pushing to avoid conflicts.
+
 ## GitHub API Rate Limits
 
 **Before performing GitHub operations:**
