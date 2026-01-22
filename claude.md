@@ -2,6 +2,13 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## File Naming
+
+**Important**: The documentation file for this repository is `claude.md` (lowercase). Always:
+1. Check if `claude.md` already exists before creating: `ls claude.md` or `git ls-files | grep claude.md`
+2. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
+3. If the file exists, read it first to understand existing structure before adding content
+
 ## Repository Exploration Checklist
 
 Before starting any task, explore the repository to understand its current state:
