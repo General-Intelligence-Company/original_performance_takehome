@@ -95,6 +95,19 @@ Before starting any task, explore the repository to understand its current state
 
 **Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
 
+## File Investigation
+
+**Before assuming file naming issues or creating documentation for problems**:
+
+1. **Check what files actually exist**: `ls -la | grep -i filename`
+2. **Search case-insensitively**: `find . -iname "*filename*" -type f`
+3. **Don't create documentation for problems that don't exist**: Verify the actual state before proposing solutions
+4. **Read the file before assuming its contents**: `cat filename` or `head -50 filename`
+
+**Common mistake**: Creating fixes or documentation for issues (like "wrong file casing") without first verifying the issue exists.
+
+**Why this matters**: Agents often waste time creating PRs and documentation to fix problems that don't exist, because they assumed an issue without investigating first.
+
 ## Repository Assessment Checklist
 
 Before creating branches or making changes:
