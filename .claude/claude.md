@@ -66,3 +66,14 @@ If you encounter '429: Rate limit exceeded... maximum number of concurrent E2B s
 2. Wait and retry after a few minutes
 3. Contact E2B support if the issue persists: https://e2b.dev/docs/getting-help
 4. Consider using alternative approaches that don't require sandbox execution
+
+## Session Analysis Requirements
+
+**Include complete conversation data when analyzing agent sessions:**
+
+1. **Full conversation messages**: Include complete messages, not just titles
+2. **Error preservation**: Capture error messages and correction attempts
+3. **Command output**: Document command outputs and failure cases
+4. **Interaction flow**: Show complete multi-turn conversation sequences
+
+**Why this matters**: Pattern analysis detected 2 occurrences (90% confidence) of sessions being logged with only titles instead of full conversation messages, preventing identification of repeated mistakes and creation of better guidance documentation.
