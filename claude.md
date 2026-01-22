@@ -41,3 +41,11 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## File Management
+
+**Before creating or modifying claude.md:**
+1. Check if the file already exists: `git ls-files claude.md`
+2. If it exists, read the current content first
+3. Always merge new content with existing content rather than overwriting
+4. Use `git status` to check for uncommitted changes before making modifications
