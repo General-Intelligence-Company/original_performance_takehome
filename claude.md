@@ -442,6 +442,15 @@ When multiple agents may be working on documentation simultaneously:
 
 **Note**: Always assume `claude.md` may have been modified since you last checked.
 
+## Database Prerequisites
+
+**Before any database operations:**
+1. Verify database connection is available
+2. Check that required schema exists
+3. Test basic connectivity before proceeding
+4. If you see 'column does not exist' errors, stop and verify schema setup
+5. Do not proceed with code changes until database is properly configured
+
 ## Database Connection Issues
 
 ### Database Requirements
