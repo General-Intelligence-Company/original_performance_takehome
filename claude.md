@@ -456,6 +456,16 @@ Before running tests, always verify the test setup:
 
 The test file `tests/submission_tests.py` uses Python's unittest framework and tests both correctness and performance against various benchmarks.
 
+## Documentation Tasks
+
+When working on documentation-only tasks (updating .md files, adding sections, etc.):
+1. Do NOT attempt database connections or code execution
+2. Focus only on file system operations (read, write, git commands)
+3. If the task mentions adding content to claude.md or AGENTS.md, treat it as a pure documentation task
+4. Use git commands for version control operations only
+
+**Pattern**: Tasks that involve updating documentation files should not trigger application startup or database connections.
+
 ## Git Workflow Best Practices
 
 Before creating branches or pushing changes:
