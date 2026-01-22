@@ -502,6 +502,13 @@ Before using `gh` commands, be aware of rate limits:
 
 ## GitHub API Rate Limits
 
+**Before using GitHub CLI commands:**
+1. Check API status: `gh api rate_limit`
+2. If rate limited, use fallback: `git push` then create PR manually via web interface
+3. Alternative: Use `git log --oneline` to get commit info for manual PR creation
+4. Rate limits reset hourly - consider waiting before retrying
+5. For bulk operations, space out API calls
+
 **If you encounter 'API rate limit exceeded' errors:**
 1. Wait for rate limit reset (usually within an hour)
 2. Use local git operations instead of GitHub CLI when possible
