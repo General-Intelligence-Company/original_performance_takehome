@@ -331,13 +331,17 @@ When modifying documentation files (especially shared ones like this file), foll
 
 When encountering merge conflicts:
 
-1. Run `git pull origin main --rebase` to rebase your changes
-2. If conflicts occur, edit the conflicted files to resolve them
-3. Look for conflict markers `<<<<<<<`, `=======`, `>>>>>>>`
-4. Keep the best parts from both versions
-5. Run `git add <filename>` to mark conflicts as resolved
-6. Run `git rebase --continue` to complete the rebase
-7. Use `git push --force-with-lease` to update your branch safely
+1. Pull latest changes: `git pull origin main --rebase`
+2. Identify conflict files: `git status`
+3. Open conflicted files and look for `<<<<<<<`, `=======`, `>>>>>>>` markers
+4. Manually resolve conflicts by combining both versions appropriately
+5. Remove conflict markers completely
+6. Verify no markers remain: `grep -c "^<<<<<<<\|^=======\|^>>>>>>>" filename.md`
+7. Stage resolved files: `git add filename.md`
+8. Continue rebase: `git rebase --continue`
+9. Force push if needed: `git push --force-with-lease`
+
+**Common pattern**: Remote updates during merge process require multiple rebase attempts.
 
 ## Safe Force Pushing
 
