@@ -204,6 +204,15 @@ Before running the Claude Code agent:
 
 **Avoid**: Requesting duplicate sections that create redundant or conflicting documentation.
 
+## Enhancing vs Adding Documentation
+
+**Decision framework:**
+1. If topic exists: enhance existing section
+2. If closely related: add subsection to existing
+3. Only create new section if topic is completely unrelated
+4. When enhancing: preserve existing structure and formatting
+5. Mark enhancements clearly in commit messages
+
 ## Experimental Code Management
 
 When making experimental changes to this codebase:
