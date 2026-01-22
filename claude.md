@@ -41,3 +41,13 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## Handling Documentation Updates
+
+### Before Creating/Updating claude.md or AGENTS.md
+1. Check if file already exists: `git show main:claude.md`
+2. If file exists, read current content first
+3. Plan to merge/extend existing content rather than overwrite
+4. When resolving merge conflicts, preserve all useful sections from both versions
+
+**Note**: Multiple agents may work on documentation simultaneously.
