@@ -244,3 +244,7 @@ Before modifying `claude.md` or other shared files:
 2. **Check existing content**: Read the file's current content before making changes
 3. **Append, don't replace**: If adding new sections, append to existing content rather than replacing
 4. **Use descriptive branches**: Use branch names that indicate the type of documentation being added (e.g., `docs/feature-name`)
+
+## Agent Startup Issues
+
+If you encounter the error `column users.onboarding_integration_step does not exist`, this indicates a database schema issue. Contact the repository administrator to ensure the database is properly initialized before agent sessions.
