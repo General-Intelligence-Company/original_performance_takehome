@@ -47,3 +47,7 @@ Before beginning work, ensure:
 4. **Graceful degradation for database issues**: Agent should handle database connection issues gracefully rather than failing completely - log the error and notify the user instead of crashing
 
 **Common Issue**: Agents fail completely when encountering database schema mismatches. Always verify schema compatibility before proceeding with database operations.
+
+## Known Issues
+
+If you encounter database errors like `column users.onboarding_integration_step does not exist`, this is a system-level issue. Contact the development team as this prevents agent execution.
