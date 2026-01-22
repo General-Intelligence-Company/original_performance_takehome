@@ -77,3 +77,18 @@ If you encounter '429: Rate limit exceeded... maximum number of concurrent E2B s
 4. **Interaction flow**: Show complete multi-turn conversation sequences
 
 **Why this matters**: Pattern analysis detected 2 occurrences (90% confidence) of sessions being logged with only titles instead of full conversation messages, preventing identification of repeated mistakes and creation of better guidance documentation.
+
+## Before Adding Documentation Sections
+
+**Mandatory checks before adding ANY new section:**
+
+1. **Read entire file first**: `cat claude.md | less`
+2. **Check all section headers**: `grep '^##' claude.md`
+3. **Search for keywords**: `grep -i "<topic>" claude.md`
+4. **Search for related terms**: `grep -i "<synonym1>|<synonym2>" claude.md`
+5. **Check recent commits**: `git log --oneline -20 -- claude.md`
+6. **Check open PRs**: `gh pr list --search "docs" --state open`
+
+**If ANY similar content exists, enhance it instead of creating duplicate sections.**
+
+**Why this matters**: Creating duplicate sections leads to inconsistent documentation, confusion about which section is authoritative, and maintenance burden when updates are needed.
