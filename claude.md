@@ -15,59 +15,30 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
-**Why this matters**: Other agents may have pushed changes while you were working. Always sync with remote before pushing to avoid conflicts.
-
 ## ⚠️ CRITICAL: Database Prerequisites
 
-**Before any database operations:**
-1. Verify database connection and schema are properly configured
-2. **Known Issue**: If you encounter `column users.onboarding_integration_step does not exist`:
-   - This is a system-level database schema issue
-   - Contact system administrators for database migration
-   - Do NOT attempt to fix the schema yourself
-   - This error prevents agent execution entirely until resolved
-3. Wait for infrastructure team to resolve schema mismatches
+**Critical Error Pattern**: `column users.onboarding_integration_step does not exist`
 
-**Why this matters**: Database schema issues are infrastructure problems that cannot be resolved at the agent level and require admin intervention.
+This error indicates missing database migrations and **prevents all agent operations**.
+
+**What to do:**
+1. **Stop all task execution immediately** - Do not continue with any coding tasks
+2. This is a **system-level infrastructure issue**, not a code problem
+3. **Contact administrators** to run required database migrations
+4. **Do NOT attempt to modify database schemas yourself** - This includes creating migrations, altering tables, or any schema changes
+5. Agent cannot proceed until this is resolved by the infrastructure team
+
+**Why this matters**: This error blocks all agent functionality and requires admin intervention. Attempting workarounds will cause cascading failures.
 
 ## GitHub API Rate Limits
 
-**Before performing git operations:**
-1. **Check rate limit status proactively**: `gh api rate_limit` to see remaining requests
-2. Check authentication: `gh auth status`
-3. If rate limited (HTTP 403), use direct git commands instead of GitHub CLI
-4. Wait before retrying operations if you encounter rate limit errors
-5. Consider using personal access tokens for higher rate limits
+**Before performing GitHub operations:**
+1. Check rate limit status: `gh auth status`
+2. If rate limited (HTTP 403), wait before retrying
+3. Use direct git commands instead of `gh` CLI when rate limited
+4. For authentication issues, try `gh auth login --with-token < token_file`
 
-**Error Pattern**: 'HTTP 403: API rate limit exceeded' means you need to wait or use alternative approaches.
-
-**If you encounter rate limit errors:**
-1. Stop making GitHub API calls immediately
-2. Switch to direct git CLI commands: `git push`, `git pull`, `git checkout`
-3. Wait at least 60 seconds before retrying (use exponential backoff)
-4. Consider using `git push --set-upstream origin branch-name` instead of API calls
-5. Always include request ID and timestamp in error reports for debugging
-
-**Alternative approaches when rate limited:**
-- Use `git` commands directly instead of `gh` CLI for most operations
-- For checking branches: `git branch -a` instead of `gh api`
-- For pushing changes: `git push origin branch-name` works without API calls
-- Create branches and commits locally, push when API is available
-- Create PRs via GitHub web interface when CLI is rate limited
-- Batch API operations and add delays between requests
-
-**Fallback commands when rate limited:**
-| Instead of | Use |
-|------------|-----|
-| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
-| `gh pr list` | `git branch -r` to see remote branches |
-| `gh pr view` | `git log origin/main..HEAD` to see your commits |
-| `gh api` calls | Direct git commands or wait for rate limit reset |
-| `gh auth status` | Check rate limit at https://api.github.com/rate_limit |
-
-**Common Scenario**: Multiple agent sessions running concurrently can quickly exhaust GitHub API limits. When this happens, switch to direct git commands for read operations and space out API-dependent operations.
-
-**Why this matters**: Pattern analysis detected 10 occurrences (100% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
+**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
 
 ## File Naming Conventions
 
@@ -166,73 +137,76 @@ Before creating branches or making changes:
 
 **Why**: Pattern analysis detected 7 occurrences (85% confidence) of agents creating branches and pushing without verifying repository permissions or understanding branch structure.
 
+## GitHub API Rate Limits
+
+**Before using GitHub CLI commands:**
+1. Check current rate limit status: `gh api rate_limit`
+2. If rate limited, use fallback approach:
+   - Push branch manually: `git push origin branch-name`
+   - Create PR via GitHub web interface
+   - Wait for rate limit reset (typically hourly)
+3. For bulk operations, space out API calls to avoid hitting limits
+
+**Common rate limit error**: `HTTP 403: API rate limit exceeded` - this prevents all GitHub CLI operations
+
+**If you encounter HTTP 403 'API rate limit exceeded':**
+- Stop making GitHub API calls immediately
+- Use git CLI commands instead: `git push`, `git pull`, `git checkout`
+- For PR operations, use `gh` CLI with authentication or manual git workflows
+- Wait before retrying API operations
+- Consider using `git push --set-upstream origin branch-name` instead of API calls
+
+**Fallback commands when rate limited:**
+| Instead of | Use |
+|------------|-----|
+| `gh pr create` | `git push -u origin branch && # create PR via web UI` |
+| `gh pr list` | `git branch -r` to see remote branches |
+| `gh pr view` | `git log origin/main..HEAD` to see your commits |
+| `gh api` calls | Direct git commands or wait for rate limit reset |
+
+**Why this matters**: Pattern analysis detected 7 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors. Using git CLI as a fallback allows work to continue.
+
 ## Environment Setup
 
 Before running the Claude Code agent:
 
 1. **Ensure database is properly initialized**: Verify all required tables exist
 2. **Run all database migrations**: Check that all migrations have been applied
-3. **Ensure environment variables are set**: Verify all necessary configuration is in place
+3. **Verify required columns**: Confirm the `users` table has all required columns including `onboarding_integration_step`
+4. **If database errors occur**: Contact system administrator to run database setup/migrations
 
-**Note**: For database schema errors (e.g., `column users.onboarding_integration_step does not exist`), see the **"⚠️ CRITICAL: Database Prerequisites"** section at the top of this file.
+Before starting any coding task that involves database operations:
+
+1. **Verify database connectivity**: Check that required database columns exist
+2. **Ensure environment variables are set**: Verify all necessary configuration is in place
+3. **Test basic database operations**: Run a simple query to confirm the schema matches expectations
+
+**Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
 
 ## Before Adding Documentation
 
 **Always check for existing content first:**
 
 1. **Read the entire target file** to understand current structure: `cat claude.md` or `git show main:claude.md`
-2. **Check section headings**: `grep '^##' claude.md`
-3. **Search for similar existing sections** using grep: `grep -i "keyword" claude.md`
-4. **Check recent commits for related changes**: `git log --oneline -10 -- claude.md`
-5. **Check for open PRs** that might add similar content: `gh pr list --search "docs" --state=all --limit=10`
-6. **If similar content exists**, enhance it rather than duplicate
-7. **Only add new sections** when content is genuinely missing
-8. **Use descriptive, unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-1737543000`)
-9. **Use consistent formatting**: Match existing markdown style and section hierarchy
+2. **Search for similar existing sections** using grep: `grep -i "keyword" claude.md`
+3. **Check recent commits for related changes**: `git log --oneline -10 -- claude.md`
+4. **Check for open PRs** that might add similar content: `gh pr list`
+5. **If similar content exists**, enhance it rather than duplicate
+6. **Use descriptive branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
+7. **Use consistent formatting**: Match existing markdown style and section hierarchy
 
 **Why**: Prevents duplicate sections and maintains documentation quality.
 
-**Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
-
-**Always check existing content first:**
-1. Read entire file: `cat claude.md` or `cat AGENTS.md`
-2. Check section headers: `grep '^##' filename.md`
-3. Search for similar topics before adding new sections
-4. If similar content exists, enhance existing section instead of creating duplicates
-5. Ensure new sections complement rather than repeat existing guidance
-
-**Additional verification steps:**
-- Run `git show main:claude.md` to see the latest committed version
-- Use consistent formatting that matches existing markdown style and section hierarchy
-- Only create new sections when the content is genuinely missing from the file
-
 **Common sections that already exist** (check before adding):
-- Git workflow, branch management, merge conflicts
-- File naming and management
-- PR creation and merging
+- File Naming Conventions
+- File Management
+- Git Workflow Best Practices
 - Testing guidelines
-- Troubleshooting (database, rate limits)
+- Merge Conflict Resolution
+- Branch Management
+- PR Creation/Merging Best Practices
 
 **Why this matters**: Creating PRs for documentation that already exists wastes review time and can cause merge conflicts. Multiple agents working concurrently may have already added similar content.
-
-## Before Requesting Documentation Changes
-
-**Always verify current state first:**
-1. Read the target file completely: `cat claude.md` or `cat AGENTS.md`
-2. Search for existing similar content: `grep -i "keyword" filename`
-3. Check recent commits: `git log --oneline -10 -- filename`
-4. Only request new sections if they don't already exist or need significant updates
-
-**Avoid**: Requesting duplicate sections that create redundant or conflicting documentation.
-
-## Enhancing vs Adding Documentation
-
-**Decision framework:**
-1. If topic exists: enhance existing section
-2. If closely related: add subsection to existing
-3. Only create new section if topic is completely unrelated
-4. When enhancing: preserve existing structure and formatting
-5. Mark enhancements clearly in commit messages
 
 ## Experimental Code Management
 
@@ -309,15 +283,14 @@ When encountering merge conflicts:
 
 ## After Resolving Merge Conflicts
 
-**Always verify merged content:**
-1. Read entire merged file: `cat filename`
-2. Check sections flow logically without contradictions
-3. Look for duplicate or redundant information to consolidate
-4. Ensure all conflict markers are removed: `grep -n "<<<\|===\|>>>" filename`
-5. Test commands and examples still work
-6. Verify no content was accidentally deleted during resolution
+**Always verify merged content before continuing:**
+1. Read the entire merged file: `cat filename`
+2. Check that sections flow logically and don't contradict each other
+3. Look for duplicate or redundant information that should be consolidated
+4. Ensure all conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) are removed
+5. Test that any commands or examples in the documentation still work
 
-**Why**: Mechanical conflict resolution creates inconsistent or duplicate content.
+**Why**: Mechanical conflict resolution can create inconsistent or duplicate content. Always review the final result as a coherent whole.
 
 ## Merge Conflict Resolution Best Practices
 
@@ -341,16 +314,6 @@ When encountering merge conflicts:
 3. Understand the branching strategy from existing PRs
 4. Ensure you have the latest main: `git pull origin main`
 5. Only create branches after understanding the codebase and requirements
-
-## Branch Naming Guidelines
-
-**Before creating a branch:**
-1. Check existing branches: `git branch -a`
-2. If your intended name exists, add a unique suffix: `-v2`, `-enhanced`, `-$(date +%m%d)`
-3. Use descriptive names that indicate the specific change
-4. Example: `docs/rate-limits-enhanced-guidance` instead of `docs/rate-limits`
-
-**Why this matters**: Multiple coding agents working concurrently often choose similar branch names, causing push failures and wasted effort.
 
 ## Git Workflow for Documentation
 
@@ -376,26 +339,19 @@ When encountering merge conflicts:
 6. Run `git rebase --continue` to complete the rebase
 7. Use `git push --force-with-lease` to update your branch safely
 
-**Never abandon a branch due to rebase conflicts - always resolve them.** Rebase conflicts are normal and expected when working on shared code. Abandoning branches wastes work and creates orphaned code.
-
 ## Safe Force Pushing
 
 When you need to force push after a rebase, always use `git push --force-with-lease` instead of `git push --force`. This prevents accidentally overwriting commits that were pushed by others since your last fetch.
 
-## Troubleshooting PR Merge Failures
+## When PR Merges Fail
 
-**If PR merge fails with 405/422 errors:**
-1. Check PR status: `gh pr view PR_NUMBER --json state,mergeable`
-2. Fetch latest: `git fetch origin`
-3. Rebase: `git checkout your-branch && git rebase origin/main`
-4. Force push: `git push origin your-branch --force-with-lease`
-5. Check for conflicts: `git status`
-6. If still failing, the repository may have branch protection rules
+If GitHub API returns 405 errors or PRs show 'dirty' mergeable state:
 
-**Common causes:**
-- Branch protection requiring reviews
-- Conflicting changes in main
-- Duplicate content already merged
+1. **Check PR status**: `gh pr view <number> --json mergeable,mergeStateStatus`
+2. **If conflicts exist, rebase the branch**: `git fetch origin main && git rebase origin/main`
+3. **Resolve any conflicts** following the conflict resolution steps above
+4. **Force push safely**: `git push --force-with-lease origin <branch>`
+5. **Only push directly to main as a last resort** when PR workflow is completely broken
 
 **Important**: Never push directly to main just because PR creation or merging failed. Always exhaust the PR workflow options first.
 
@@ -628,16 +584,6 @@ If you see this error:
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
 
-## Database Prerequisites
-
-**Before any database operations:**
-1. Verify database connection is available
-2. Check that required schema exists
-3. If you encounter 'column does not exist' errors, STOP execution
-4. Contact development team for schema migration issues
-
-**Critical Error**: `column users.onboarding_integration_step does not exist` indicates incomplete database schema - do not proceed with task.
-
 ### Handling Database Schema Errors
 
 **If you encounter database schema errors:**
@@ -649,23 +595,15 @@ If you see this error:
 
 **Why**: These are infrastructure issues outside the agent's scope of control.
 
-## Before Requesting Documentation Updates
+## Documentation Updates
 
-**Always check existing content first:**
-1. Read current file: `cat claude.md` or view on GitHub
-2. Check recent commits: `git log --oneline -10 main -- claude.md`
-3. Review open/recent PRs: `gh pr list --search "docs"`
-4. Search for similar content: `grep -i "keyword" claude.md`
-5. If similar content exists, enhance it rather than creating duplicates
+### Before Adding Content
 
-**Common topics already covered:**
-- Git workflow and pull-before-push guidance
-- Merge conflict prevention and resolution
-- Documentation best practices
-- File naming conventions
-- Branch management
-- PR creation/merging best practices
-- GitHub API rate limits
+1. Read the ENTIRE current documentation file
+2. Identify existing sections that might overlap with your planned addition
+3. If similar content exists, enhance it rather than duplicating
+4. If adding new content, ensure it complements existing structure
+5. After changes, verify the flow and organization make sense
 
 **Tip**: Use `git show main:filename` to see the latest version before making changes
 
@@ -678,4 +616,30 @@ Before adding new documentation sections:
 3. **Search for existing branches with similar names**: Run `git branch -a | grep -i "docs/"` to find branches like `docs/git-workflow`, `docs/add-git-*`, etc.
 4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
 
-**Why this matters**: Multiple coding agent sessions often add similar documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
+**Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
+
+## GitHub API Rate Limits
+
+**If you encounter 'HTTP 403: API rate limit exceeded' errors:**
+1. Wait 60+ seconds before retrying API operations
+2. Use git commands directly instead of `gh` CLI when possible:
+   - Use `git push origin branch-name` instead of `gh pr create`
+   - Use `git log --oneline` instead of `gh pr list`
+3. For PR creation, push the branch first, then create PR manually when API is available
+4. Always include request ID and timestamp when reporting rate limit errors
+5. Check current rate limit status: `gh api rate_limit`
+
+**Why this matters**: GitHub API has rate limits that can cause agent failures, but most operations can be completed using local git commands as fallbacks.
+
+## GitHub API Rate Limit Handling
+
+**Before any GitHub operations:**
+1. Check rate limit status: `gh api rate_limit`
+2. If rate limited, wait 60+ seconds before retrying
+3. Use alternative approaches when API unavailable:
+   - Use `git` commands instead of `gh` CLI
+   - Perform operations locally and sync when API is available
+   - Document changes for manual PR creation
+4. Always include request ID in error reports for GitHub support
+
+**Common Error**: HTTP 403 API rate limit exceeded means you need to wait before retrying operations.
