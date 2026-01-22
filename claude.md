@@ -123,3 +123,12 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 3. **Add new content as additional sections** rather than replacing existing content
 4. **Test that the merged content is well-formatted** before completing the merge
 5. **Complete the resolution**: Use `git add <file>` and `git rebase --continue` (or `git merge --continue`) to finalize
+
+## Working with Shared Documentation
+
+Before modifying `claude.md` or other shared files:
+
+1. **Pull latest changes**: Run `git pull origin main` to get the most recent version
+2. **Check existing content**: Read the file's current content before making changes
+3. **Append, don't replace**: If adding new sections, append to existing content rather than replacing
+4. **Use descriptive branches**: Use branch names that indicate the type of documentation being added (e.g., `docs/feature-name`)
