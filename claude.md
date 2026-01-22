@@ -222,6 +222,20 @@ Before creating branches or pushing changes:
 
 **Why this matters**: Pushing without checking if main has moved can cause merge conflicts and force other collaborators to resolve issues that could have been handled locally.
 
+## Git Push Best Practices
+
+**Before pushing any branch**:
+1. `git fetch origin main` - Check for remote updates
+2. `git pull origin main --rebase` - Get latest changes
+3. Resolve any conflicts that arise
+4. Then push your branch
+
+**If push fails with 'Updates were rejected'**:
+1. `git pull origin main --rebase`
+2. Resolve conflicts if any
+3. `git push origin BRANCH_NAME`
+4. For force push: use `--force-with-lease` for safety
+
 ## PR Creation Best Practices
 
 **After creating any PR:**
