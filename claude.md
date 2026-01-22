@@ -28,13 +28,20 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## GitHub API Rate Limits
 
-**Before performing GitHub operations:**
-1. Check rate limit status: `gh auth status`
-2. If rate limited (HTTP 403), wait before retrying
-3. Use direct git commands instead of `gh` CLI when rate limited
-4. For authentication issues, try `gh auth login --with-token < token_file`
+**Before any GitHub operations:**
+1. Check rate limit status: `gh api rate_limit` or `curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit`
+2. If rate limited (HTTP 403), use git commands directly instead of GitHub CLI
+3. For repository operations, prefer `git clone` over GitHub API calls
+4. Wait for rate limit reset if GitHub API is required
 
-**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
+**Fallback when rate limited:**
+- Use `git` commands instead of `gh` commands
+- Clone via HTTPS: `git clone https://github.com/owner/repo.git`
+- Create branches and commits locally, push when rate limit resets
+
+**Error Pattern**: If you see 'HTTP 403: API rate limit exceeded', pause operations and retry later.
+
+**Why this matters**: Pattern analysis detected 9 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform operations.
 
 ## File Naming Conventions
 
