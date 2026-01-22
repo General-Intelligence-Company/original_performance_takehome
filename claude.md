@@ -41,3 +41,13 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## Merge Conflict Resolution
+
+When encountering merge conflicts in `claude.md` or other documentation files:
+
+1. **Read the entire conflicted file** to understand both versions
+2. **Preserve all existing sections** and documentation content
+3. **Add new content as additional sections** rather than replacing existing content
+4. **Test that the merged content is well-formatted** before completing the merge
+5. **Complete the resolution**: Use `git add <file>` and `git rebase --continue` (or `git merge --continue`) to finalize
