@@ -48,6 +48,19 @@ When creating PRs:
 3. Always include suggested PR title and description
 4. Confirm the branch has been pushed before attempting PR creation
 
+## Manual PR Merging Best Practices
+
+**Before attempting manual git merge:**
+1. Check if PR content already exists in main: `git diff origin/main...origin/branch-name`
+2. If diff shows no meaningful changes or main already has the content, close PR with explanation instead of merging
+3. Only proceed with manual merge if there are actual changes to incorporate
+
+**For manual merges with conflicts:**
+1. Use `git checkout --ours filename` to keep main's version when main already has comprehensive content
+2. Prefer closing outdated PRs over creating empty merge commits
+
+**Why this matters**: Pattern analysis detected 4 occurrences (90% confidence) of agents attempting squash merges without first checking if PR content already exists in main, leading to conflicts or empty commits.
+
 ## GitHub API Rate Limits
 
 1. **Check rate limit status** - Use `gh api rate_limit` to check current limits before operations
