@@ -50,6 +50,17 @@ Before starting any task, explore the repository to understand its current state
 
 **Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
 
+## File Operations
+
+Before working with files:
+
+1. **Check current directory**: Run `pwd` to confirm your location
+2. **List files to see what exists**: Run `ls -la` to view all files including hidden ones
+3. **Locate files before reading/editing**: Use `find . -name "filename"` or `ls path/to/dir` to verify paths
+4. **Never assume file locations**: Always verify paths exist before attempting to read or edit
+
+**Why**: Prevents `tool_use_error` when agents try to access files that don't exist or are in unexpected locations.
+
 ## Environment Setup
 
 Before starting any coding task that involves database operations:
