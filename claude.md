@@ -515,6 +515,17 @@ If you see this error:
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
 
+### Handling Database Schema Errors
+
+**If you encounter database schema errors:**
+
+1. Errors like `column users.onboarding_integration_step does not exist` indicate missing database migrations
+2. This is a system-level issue that prevents agent execution
+3. Do not attempt to continue with the task - report the error and terminate gracefully
+4. These errors require human developer intervention to fix database schema
+
+**Why**: These are infrastructure issues outside the agent's scope of control.
+
 ## Documentation Updates
 
 ### Before Adding Content
