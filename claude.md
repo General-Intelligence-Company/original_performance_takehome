@@ -41,3 +41,11 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## File Naming Conventions
+
+When creating or updating documentation files:
+
+1. **Use lowercase `claude.md`** for agent guidelines - NOT `CLAUDE.md`
+2. **Check if the file already exists** before creating a new one
+3. **If unsure about naming**, check existing files in the repository root
