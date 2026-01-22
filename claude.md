@@ -455,6 +455,21 @@ Before creating branches or pushing changes:
 
 ## PR Merging Best Practices
 
+### Check Repository Merge Settings First
+
+Before attempting to merge any PR, check the repository's allowed merge methods:
+
+```bash
+gh repo view --json mergeCommitAllowed,squashMergeAllowed,rebaseMergeAllowed
+```
+
+Based on the output:
+1. Use only the merge methods that are allowed by the repository settings
+2. If auto-merge is disabled, wait for manual review and merge by a repository maintainer
+3. Do not sequentially attempt different merge methods hoping one will work
+
+**Common Error**: Attempting multiple merge methods (squash, merge, rebase) sequentially without checking repository configuration first. This wastes time and creates noise in CI/CD logs.
+
 **When GitHub API merge fails (405 Method Not Allowed)**:
 
 This often happens when PRs have conflicts or the repository has merge restrictions.
