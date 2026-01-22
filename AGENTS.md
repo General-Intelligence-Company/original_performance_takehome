@@ -61,18 +61,13 @@ Before beginning work, ensure:
 
 **Common Issue**: Agents fail completely when encountering database schema mismatches. Always verify schema compatibility before proceeding with database operations.
 
-## Known Issues
+## Known System Issues
 
-If you encounter database errors like `column users.onboarding_integration_step does not exist`, this is a system-level issue. Contact the development team as this prevents agent execution.
-
-## Known Infrastructure Issues
-
-**Database Schema Errors:**
+### Database Column Errors
 
 If you encounter `column users.onboarding_integration_step does not exist` or similar database column errors:
 
-1. **This is a database migration/schema issue**
-2. **Cannot be fixed at the agent level**
-3. **Contact infrastructure team or system administrator**
-4. **Do not attempt database migrations or schema changes**
-5. **Wait for infrastructure team to resolve**
+- **This is a system-level database issue** requiring administrator intervention
+- **Do NOT attempt to fix the schema yourself**
+- **Contact the development team** or system administrator
+- This error prevents agent execution entirely and must be resolved at the infrastructure level
