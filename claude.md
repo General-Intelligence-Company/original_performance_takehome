@@ -4,7 +4,17 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## Git Workflow
 
-Before creating branches or pushing:
+**Before creating any branch or making changes:**
+
+1. Run `git fetch origin main` to get latest changes
+2. Check if target files already exist: `git show main:filename`
+3. If the file exists, read its contents to understand current structure
+4. Plan your changes to complement existing content
+5. Only then create your feature branch
+
+**For documentation files (claude.md, README.md):** Always assume they may have been updated by others. Merge conflicts in documentation are common and preventable.
+
+**Before creating branches or pushing:**
 
 1. Check current status: `git status`
 2. List existing branches: `git branch -a`
