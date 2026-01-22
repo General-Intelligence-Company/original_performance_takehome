@@ -36,3 +36,14 @@ If you encounter database errors like 'column users.onboarding_integration_step 
 2. Report this error to system administrators
 3. This is not a repository-specific issue but an agent platform issue
 4. Try using a different agent or manual git commands as fallback
+
+## Agent Startup Requirements
+
+Before beginning work, ensure:
+
+1. **Database schema is properly initialized**: Verify the database has been set up correctly before executing queries
+2. **All required columns exist in the users table**: Check that expected columns are present before running operations that depend on them
+3. **Handle missing column errors gracefully**: If encountering `column users.onboarding_integration_step does not exist` error, contact system administrator rather than attempting to create or modify the schema
+4. **Graceful degradation for database issues**: Agent should handle database connection issues gracefully rather than failing completely - log the error and notify the user instead of crashing
+
+**Common Issue**: Agents fail completely when encountering database schema mismatches. Always verify schema compatibility before proceeding with database operations.
