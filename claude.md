@@ -42,6 +42,15 @@ Before creating new documentation:
 4. Ensure you have the latest main: `git pull origin main`
 5. Only create branches after understanding the codebase and requirements
 
+## Git Workflow for Documentation
+
+When modifying documentation files (especially shared ones like this file), follow these steps to avoid merge conflicts:
+
+1. Always run `git pull origin main` before creating branches
+2. Check if the target file already exists: `git show main:filename`
+3. If file exists, read current content to understand structure
+4. When resolving merge conflicts, preserve all existing sections and add new content appropriately
+
 ## Testing
 
 Before running tests, always verify the test setup:
