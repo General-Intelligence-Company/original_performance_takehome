@@ -14,6 +14,15 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
+## File Naming Case Sensitivity
+
+**Always use consistent case:**
+- Use lowercase: `claude.md` (canonical file)
+- Check existing files: `ls -la | grep -i claude`
+- If both cases exist, work with the canonical lowercase version
+- Avoid creating `CLAUDE.md` - use existing `claude.md`
+- File systems are case-sensitive - verify correct filename before editing
+
 ## GitHub API Rate Limits
 
 **Before performing GitHub operations:**
