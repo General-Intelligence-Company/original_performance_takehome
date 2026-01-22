@@ -14,6 +14,17 @@ Before creating branches or pushing:
 
 **Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
 
+## Before Creating Documentation PRs
+
+When creating or modifying documentation files (like `claude.md`), follow these steps to prevent merge conflicts:
+
+1. Run `git fetch origin main` to get latest changes
+2. Check if target file exists: `ls claude.md` or `git show main:claude.md`
+3. If file exists, read current content before making changes
+4. Consider rebasing branch against main before pushing
+
+This prevents merge conflicts when multiple agents work on the same documentation files simultaneously.
+
 ## Testing
 
 Before running tests, always verify the test setup:
