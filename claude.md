@@ -14,6 +14,16 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
+## GitHub API Rate Limits
+
+**Before performing GitHub operations:**
+1. Check rate limit status: `gh auth status`
+2. If rate limited (HTTP 403), wait before retrying
+3. Use direct git commands instead of `gh` CLI when rate limited
+4. For authentication issues, try `gh auth login --with-token < token_file`
+
+**Common Error**: `HTTP 403: API rate limit exceeded` - This requires waiting before retry.
+
 ## File Naming Conventions
 
 **Before creating documentation files**:
