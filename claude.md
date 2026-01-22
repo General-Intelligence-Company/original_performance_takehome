@@ -19,6 +19,14 @@ Always:
 2. Use exact case-sensitive filename `claude.md` (not CLAUDE.md)
 3. If the file exists, read it first to understand existing structure before adding content
 
+## Avoiding Duplicate Documentation
+
+Before adding new sections to claude.md:
+1. Read the entire current file: `git show origin/main:claude.md`
+2. Search for similar content: `git show origin/main:claude.md | grep -i 'keyword'`
+3. If similar content exists, enhance it rather than duplicating
+4. Check recent commits for pending similar changes: `git log --oneline -10 origin/main`
+
 ## Repository Exploration Checklist
 
 Before starting any task, explore the repository to understand its current state:
