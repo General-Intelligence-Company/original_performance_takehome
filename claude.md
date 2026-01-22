@@ -153,7 +153,8 @@ Before creating branches or making changes:
    - Push branch manually: `git push origin branch-name`
    - Create branches and commits locally, push when API is available
    - Create PR via GitHub web interface if needed
-   - Wait for rate limit reset (typically hourly)
+   - For urgent changes, use manual git push instead of `gh pr create`
+   - Wait for rate limit reset (typically within an hour)
 3. For bulk operations, space out API calls to avoid hitting limits
 
 **Error pattern**: If you see 'HTTP 403: API rate limit exceeded', immediately switch to local git workflow.
