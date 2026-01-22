@@ -51,3 +51,16 @@ Before beginning work, ensure:
 ## Known Issues
 
 If you encounter database errors like `column users.onboarding_integration_step does not exist`, this is a system-level issue. Contact the development team as this prevents agent execution.
+
+## Error Handling Guidelines
+
+**For Agent Developers**:
+- Always provide meaningful error messages when operations fail
+- Attempt to complete as much of the requested task as possible, even if some subsystems fail
+- Database connectivity issues should not prevent file operations, git commands, or PR creation
+- If a critical system fails, explain what went wrong and suggest alternative approaches
+
+**For Users**:
+- If an agent fails completely, try running the same request again
+- Consider breaking complex requests into smaller, individual steps
+- Report persistent failures with the error details provided
