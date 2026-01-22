@@ -2,6 +2,18 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## Repository Exploration Checklist
+
+Before starting any task, explore the repository to understand its current state:
+
+1. **List all files and directories**: `ls -la`
+2. **Check all branches**: `git branch -a`
+3. **Review recent commits**: `git log --oneline -5`
+4. **Find existing documentation**: `ls *.md`
+5. **Understand the current state** before making changes
+
+**Why**: Prevents duplicate work and ensures awareness of existing code/documentation.
+
 ## Before Adding Documentation
 
 Before creating new documentation:
