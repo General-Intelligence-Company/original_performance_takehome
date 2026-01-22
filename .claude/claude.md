@@ -48,6 +48,20 @@ When creating PRs:
 3. Always include suggested PR title and description
 4. Confirm the branch has been pushed before attempting PR creation
 
+## Pre-Merge Branch Validation
+
+Before merging any PR, always verify:
+
+1. **Check branch status**: `git log --oneline main..origin/branch-name`
+2. **Compare content**: `git diff main...origin/branch-name`
+3. **Verify changes are still needed** - main might already have the content
+4. **Check if branch is stale**: `git merge-base --is-ancestor origin/branch-name main`
+5. **If content already exists in main**, close the PR instead of creating empty merge
+
+**Red flag**: If diff shows main has more comprehensive content, the PR may be obsolete.
+
+**Why this matters**: Pattern detected where agents attempt to merge branches without checking if they are stale or if content is already in main, leading to unnecessary or empty merges.
+
 ## GitHub API Rate Limits
 
 1. **Check rate limit status** - Use `gh api rate_limit` to check current limits before operations
