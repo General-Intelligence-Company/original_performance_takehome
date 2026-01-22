@@ -6,11 +6,12 @@ This file provides guidance for AI coding agents working on this repository.
 
 **This is the #1 cause of push failures.** Always pull latest changes before any git operations.
 
-**Before any git operations**:
-1. Always pull latest: `git pull origin main`
+**Before any git operations:**
+1. **Always pull latest**: `git pull origin main`
 2. Check status: `git status`
-3. If push fails with 'Updates were rejected', use: `git pull --rebase origin main`
+3. If push fails with 'Updates were rejected': `git pull --rebase origin main`
 4. Use `git push --force-with-lease` after rebase if needed
+5. Never use `git push --force` unless absolutely necessary
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
