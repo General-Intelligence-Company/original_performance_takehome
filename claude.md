@@ -14,6 +14,17 @@ Before creating branches or pushing:
 
 **Important**: Do not automatically create branches like `cofounder/optimization-v1` or push to origin without first verifying repository permissions and existing branch structure.
 
+## File Naming Conventions
+
+**Before creating documentation files:**
+
+1. Check existing files: `ls *.md` and `find . -name "*.md"`
+2. Use consistent casing - if `claude.md` exists, don't create `CLAUDE.md`
+3. Follow the repository's established patterns
+4. When in doubt, use lowercase for documentation files
+
+This prevents file casing inconsistencies that can cause confusion and duplicate content.
+
 ## Testing
 
 Before running tests, always verify the test setup:
