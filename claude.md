@@ -57,16 +57,13 @@ Before creating new documentation:
 
 ## Git Conflict Resolution
 
-When encountering merge conflicts:
+1. **Check conflicted files**: `git status` shows files with conflicts
+2. **Edit conflicted files**: Look for `<<<<<<<`, `=======`, `>>>>>>>` markers
+3. **Manual resolution**: Keep desired content, remove all conflict markers
+4. **Mark as resolved**: `git add <filename>`
+5. **Continue operation**: `git rebase --continue` or `git merge --continue`
 
-1. Run `git status` to see conflicted files
-2. Open conflicted files and look for `<<<<<<<`, `=======`, `>>>>>>>` markers
-3. Manually edit to keep desired content from both sides
-4. Remove all conflict markers
-5. Run `git add <filename>` to mark as resolved
-6. Continue with `git rebase --continue` or `git merge --continue`
-
-Always verify the final merged content is coherent before continuing.
+Always verify the final merged content makes sense before continuing.
 
 ## Branch Management
 
