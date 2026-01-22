@@ -247,6 +247,22 @@ This prevents merge conflicts and ensures you're working with the latest code.
 6. `git rebase --continue` or `git merge --continue`
 7. Verify final content is coherent
 
+## Rebase Workflow for Fast-Moving Main
+
+**When main branch is being actively updated by multiple agents:**
+
+1. **Before starting work**: `git pull --rebase origin main`
+2. **Before every commit**: Check if main moved: `git fetch origin && git log HEAD..origin/main --oneline`
+3. **If main has new commits**: Rebase immediately: `git pull --rebase origin main`
+4. **Before pushing**: Always pull rebase first: `git pull --rebase origin main && git push`
+
+**Critical conflict marker rule:**
+- NEVER commit files containing `<<<<<<<`, `=======`, or `>>>>>>>`  markers
+- Use `grep -rn "<<<<<<" .` to check for unresolved conflicts before committing
+- If markers exist, resolve manually then `git add` the files
+
+**Why rebase over merge**: Rebasing creates cleaner history and reduces conflict complexity when multiple agents work simultaneously.
+
 ## Git Workflow
 
 **Before creating any branch or making changes:**
