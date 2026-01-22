@@ -32,3 +32,13 @@ This prevents merge conflicts when multiple agents update documentation simultan
 3. **If conflicts exist**: Rebase against main and force push
 4. **Test locally**: Run any relevant tests before marking complete
 5. **Document what was added**: Clearly state what sections/content were added
+
+## Before Creating Branches
+
+1. **Check repository permissions**: Can you push to main? Do you need to fork?
+2. **Examine existing branches**: Run `git branch -a` to see all branches
+3. **Understand the workflow**: Are there existing PRs? What's the branch naming convention?
+4. **Check for existing similar branches**: Avoid duplication of effort
+5. **Only create branches after understanding the structure**: Verify you understand the repository layout
+
+This prevents permission errors and duplicate work.
