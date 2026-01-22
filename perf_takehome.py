@@ -190,9 +190,9 @@ class KernelBuilder:
             for round_idx in range(rounds):
                 is_last_round = (round_idx == rounds - 1)
                 is_first_round = (round_idx == 0)
-                # Only use all-zero optimization for round 0 (not wraparound) since
-                # wraparound round has A nodes already loaded from previous round
-                is_all_zero = is_first_round
+                # Use all-zero optimization for round 0 AND wraparound round 11
+                # At wraparound, all indices just became 0 in the previous round
+                is_all_zero = is_first_round or (round_idx == wraparound_round)
 
                 if is_all_zero:
                     # OPTIMIZATION: Round 0 all indices are 0, load once, broadcast, XOR all
