@@ -24,6 +24,16 @@ Before making changes to `claude.md` or `CLAUDE.md`:
 
 This prevents merge conflicts when multiple agents update documentation simultaneously.
 
+## Before Adding New Sections to claude.md
+
+1. **Read the entire file first**: `cat claude.md` or open in editor
+2. **Look for existing sections**: Search for topics that might cover similar content
+3. **Enhance existing sections**: If similar content exists, update that section instead of creating a new one
+4. **Place new sections logically**: Position relative to existing content flow
+5. **Use consistent formatting**: Match header levels and style with the rest of the file
+
+This prevents duplicate or conflicting sections from accumulating.
+
 ## Pull Request Best Practices
 
 ### After Creating a PR
