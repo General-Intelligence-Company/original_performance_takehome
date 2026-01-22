@@ -2,6 +2,16 @@
 
 This file provides guidance for AI coding agents working on this repository.
 
+## Repository Assessment Checklist
+
+Before making any changes:
+
+1. Check current branch and status: `git branch -a && git status`
+2. Verify repository permissions: `git remote -v`
+3. Review existing branch structure to understand naming conventions
+4. Check for any existing PRs that might conflict: `gh pr list`
+5. Only create branches after understanding the repository state
+
 ## Git Workflow
 
 Before creating branches or pushing:
