@@ -114,15 +114,16 @@ Before starting any coding task that involves database operations:
 
 **Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
 
-## Before Adding New Documentation Sections
+## Before Adding Documentation
 
-**Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
+**Always check for existing content first:**
 
-1. **Read the full file first**: Run `cat claude.md` or `git show main:claude.md` to see all current content
-2. **Check for existing sections**: Search for similar content that might already exist
-3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
-4. **Use consistent formatting**: Match existing markdown style and section hierarchy
-5. **Only create new sections**: When the content is genuinely missing from the file
+1. **Read the entire target file** to understand current structure: `cat claude.md` or `git show main:claude.md`
+2. **Search for similar existing sections** using grep: `grep -i "keyword" claude.md`
+3. **Check for open PRs** that might add similar content: `gh pr list`
+4. **If similar content exists**, enhance it rather than duplicate
+5. **Use unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-username`)
+6. **Use consistent formatting**: Match existing markdown style and section hierarchy
 
 **Common sections that already exist** (check before adding):
 - File Naming Conventions
