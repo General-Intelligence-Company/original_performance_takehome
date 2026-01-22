@@ -14,6 +14,19 @@ This file provides guidance for AI coding agents working on this repository.
 
 **Common Issue**: Push failures usually mean you haven't pulled the latest changes from remote.
 
+## ⚠️ Database Prerequisites
+
+**Before starting any work:**
+1. Verify database connection and schema are properly configured
+2. **Critical Error**: If you encounter `column users.onboarding_integration_step does not exist`:
+   - This is a known system-level database schema issue
+   - **DO NOT** attempt to fix this yourself
+   - **DO NOT** continue with any tasks
+   - Contact system administrators immediately
+   - This error prevents all agent execution until resolved
+
+**Why this matters**: This database error is an infrastructure issue that requires admin-level database migrations.
+
 ## File Naming Conventions
 
 **Before creating documentation files**:
