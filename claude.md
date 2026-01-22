@@ -41,3 +41,9 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## File Naming
+
+- Always use exact case sensitivity when working with files
+- Check for existing files before creating new ones: `ls -la | grep -i filename`
+- Repository uses lowercase `claude.md` not `CLAUDE.md`
