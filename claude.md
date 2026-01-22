@@ -316,8 +316,15 @@ When encountering merge conflicts:
 1. Check repository permissions: Can you push to this repo?
 2. Review existing branches: `git branch -a`
 3. Understand the branching strategy from existing PRs
-4. Ensure you have the latest main: `git pull origin main`
-5. Only create branches after understanding the codebase and requirements
+4. **Verify the default branch name** (do NOT assume 'main'):
+   - Run `git remote show origin | grep 'HEAD branch'` to check the default branch
+   - Or use `git ls-remote --symref origin HEAD` for a quick check
+   - Common default branches: `main`, `master`, `develop`, `trunk`
+5. Ensure you have the latest default branch: `git pull origin <default-branch>`
+6. Create branches from the correct default: `git checkout -b new-branch origin/<default-branch>`
+7. Only create branches after understanding the codebase and requirements
+
+**Why verify the default branch?** Pattern analysis detected 3 occurrences (85% confidence) of agents assuming 'main' is the default branch when repositories use 'master', 'develop', or other branch names.
 
 ## Git Workflow for Documentation
 
