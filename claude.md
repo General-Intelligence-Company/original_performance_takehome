@@ -342,6 +342,16 @@ When encountering merge conflicts:
 4. Ensure you have the latest main: `git pull origin main`
 5. Only create branches after understanding the codebase and requirements
 
+## Branch Naming Guidelines
+
+**Before creating a branch:**
+1. Check existing branches: `git branch -a`
+2. If your intended name exists, add a unique suffix: `-v2`, `-enhanced`, `-$(date +%m%d)`
+3. Use descriptive names that indicate the specific change
+4. Example: `docs/rate-limits-enhanced-guidance` instead of `docs/rate-limits`
+
+**Why this matters**: Multiple coding agents working concurrently often choose similar branch names, causing push failures and wasted effort.
+
 ## Git Workflow for Documentation
 
 When modifying documentation files (especially shared ones like this file), follow these steps to avoid merge conflicts:
