@@ -24,6 +24,14 @@ Before making changes to `claude.md` or `CLAUDE.md`:
 
 This prevents merge conflicts when multiple agents update documentation simultaneously.
 
+## Documentation File Naming
+
+**IMPORTANT**: Always check which documentation file exists before creating or modifying:
+1. Run `ls claude.md CLAUDE.md` to see which exists
+2. Use `git ls-files | grep -i claude` to find existing documentation files
+3. Maintain consistency - if claude.md exists, use that; if CLAUDE.md exists, use that
+4. Never create both files - stick to the existing convention
+
 ## Pull Request Best Practices
 
 ### After Creating a PR
