@@ -125,15 +125,13 @@ This prevents merge conflicts and ensures you're working with the latest code.
 ## Git Conflict Resolution
 
 When encountering merge conflicts:
-
 1. Run `git status` to see conflicted files
 2. Open conflicted files and look for `<<<<<<<`, `=======`, `>>>>>>>` markers
 3. Manually edit to keep desired content from both sides
 4. Remove all conflict markers
 5. Run `git add <filename>` to mark as resolved
 6. Continue with `git rebase --continue` or `git merge --continue`
-
-Always verify the final merged content is coherent before continuing.
+7. Always verify the final merged content is coherent before continuing
 
 ## Branch Management
 
