@@ -257,19 +257,30 @@ Before creating branches or pushing changes:
 
 ## PR Merging Best Practices
 
-**When GitHub API merge fails (405 errors)**:
-1. Try `gh pr merge PR_NUMBER --merge` first
-2. If that fails, use git commands:
-   - `git fetch origin main`
-   - `git checkout main`
-   - `git merge BRANCH_NAME`
-   - `git push origin main`
-3. Always verify merge was successful with `git log --oneline -3`
-4. Clean up feature branch after successful merge
+**When GitHub API merge fails (405 Method Not Allowed)**:
+
+This often happens when PRs have conflicts or the repository has merge restrictions.
+
+1. **Try the GitHub CLI first**: `gh pr merge PR_NUMBER --merge`
+2. **If that fails, fallback to manual merge**:
+   ```bash
+   git checkout main && git pull origin main && git merge BRANCH_NAME && git push origin main
+   ```
+3. **If conflicts exist, rebase first**:
+   ```bash
+   git checkout BRANCH_NAME
+   git rebase origin/main
+   # Resolve any conflicts
+   git checkout main && git pull origin main && git merge BRANCH_NAME && git push origin main
+   ```
+4. **Always use `--force-with-lease` for force pushes** to avoid overwriting others' work
+5. **Verify merge was successful**: `git log --oneline -3`
+6. **Clean up feature branch** after successful merge: `git branch -d BRANCH_NAME`
 
 **Prevention**:
-- Check PR mergeable status before attempting merge
-- Ensure branch is up to date with main
+- Check PR mergeable status before attempting merge: `gh pr view PR_NUMBER --json mergeable,mergeStateStatus`
+- Ensure branch is up to date with main before creating PR
+- Rebase against main if the PR shows conflicts
 
 ## Performance Measurement
 
