@@ -76,3 +76,18 @@ If you encounter `column users.onboarding_integration_step does not exist` or si
 3. **Contact infrastructure team or system administrator**
 4. **Do not attempt database migrations or schema changes**
 5. **Wait for infrastructure team to resolve**
+
+## Error Handling Best Practices
+
+**When encountering errors:**
+
+1. **Explain what operation was being attempted** - Provide context about the task and its purpose
+2. **Provide the full error message and context** - Include stack traces, error codes, and relevant logs
+3. **Suggest possible causes and solutions** - Analyze the error and offer actionable next steps
+4. **Offer alternative approaches if the primary method fails** - Have fallback strategies ready
+
+**For database errors:**
+
+- **Check if you're connected to the correct database** - Verify connection strings and credentials
+- **Verify table schema matches expectations** - Confirm required columns and tables exist
+- **Suggest running migrations if columns are missing** - Guide users to proper schema setup procedures
