@@ -17,6 +17,22 @@ This file provides guidance for AI coding agents working on this repository.
 
 This prevents creating duplicate files with different casing, which causes confusion and content fragmentation when multiple agents work on the repository.
 
+## Working with Concurrent Updates
+
+**CRITICAL**: Multiple agents work on this repository simultaneously. Before any documentation changes:
+
+1. **Always fetch first**: `git fetch origin main`
+2. **Pull latest main**: `git pull origin main --rebase`
+3. **Read current file**: Check if `claude.md` has been updated since you last saw it
+4. **Create branch from updated main**: `git checkout -b your-branch-name`
+
+If you encounter merge conflicts:
+1. Read conflict markers carefully - preserve all useful content from both versions
+2. Merge content logically rather than overwriting
+3. Use `git add . && git rebase --continue` to resolve
+
+**Note**: This repository is highly active. Expect frequent updates to `claude.md`.
+
 ## Pre-work Checklist for Documentation Updates
 
 Before modifying `claude.md` or other documentation:
