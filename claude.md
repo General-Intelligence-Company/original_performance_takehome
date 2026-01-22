@@ -101,3 +101,13 @@ To get consistent performance measurements:
 - Always use exact case sensitivity when working with files
 - Check for existing files before creating new ones: `ls -la | grep -i filename`
 - Repository uses lowercase `claude.md` not `CLAUDE.md`
+
+## Merge Conflict Resolution
+
+When encountering merge conflicts in `claude.md` or other documentation files:
+
+1. **Read the entire conflicted file** to understand both versions
+2. **Preserve all existing sections** and documentation content
+3. **Add new content as additional sections** rather than replacing existing content
+4. **Test that the merged content is well-formatted** before completing the merge
+5. **Complete the resolution**: Use `git add <file>` and `git rebase --continue` (or `git merge --continue`) to finalize
