@@ -389,6 +389,14 @@ Before creating a branch:
 
 **Why verify the default branch?** Pattern analysis detected 3 occurrences (85% confidence) of agents assuming 'main' is the default branch when repositories use 'master', 'develop', or other branch names.
 
+## Branch Naming Best Practices
+
+**Use unique, descriptive branch names:**
+1. Check existing branches: `git branch -a | grep docs`
+2. Use timestamps for uniqueness: `docs/topic-name-$(date +%s)`
+3. Include specific feature: `docs/add-specific-guidance-timestamp`
+4. Avoid generic names like `docs/update-docs` or `docs/add-documentation`
+
 ## Git Workflow for Documentation
 
 When modifying documentation files (especially shared ones like this file), follow these steps to avoid merge conflicts:
