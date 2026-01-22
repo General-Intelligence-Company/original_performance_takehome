@@ -342,8 +342,10 @@ When encountering merge conflicts:
 2. Check sections flow logically without contradictions
 3. Look for duplicate or redundant information to consolidate
 4. Ensure all conflict markers are removed: `grep -n "<<<\|===\|>>>" filename`
-5. Test commands and examples still work
-6. Verify no content was accidentally deleted during resolution
+5. Verify no conflict markers remain (should return 0): `grep -c "^<<<<<<<\|^=======\|^>>>>>>>" filename`
+6. Test commands and examples still work
+7. Verify no content was accidentally deleted during resolution
+8. Complete the resolution: `git add filename && git rebase --continue`
 
 **Why**: Mechanical conflict resolution creates inconsistent or duplicate content.
 
