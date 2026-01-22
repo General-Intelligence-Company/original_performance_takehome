@@ -400,12 +400,31 @@ When multiple agents may be working on documentation simultaneously:
 
 ## Database Connection Issues
 
+### Database Requirements
+
+Before running Claude Code agent:
+
+1. **Ensure database is properly initialized**: Verify the database exists and has the required schema
+2. **Check that all required columns exist**: Particularly in the `users` table
+3. **Run schema migrations**: If encountering 'column does not exist' errors, run pending migrations first
+4. **Verify database connection string**: Ensure the connection configuration is correct
+
+### Troubleshooting Database Errors
+
 If you encounter database connection errors (such as 'column does not exist' or similar schema errors):
 
 1. **Check if the database is properly initialized**: Verify the database exists and has been set up correctly
 2. **Verify schema migrations are up to date**: Run any pending migrations before attempting database operations
 3. **Consider using offline mode**: If database operations are not essential for the current task, proceed without them
 4. **Report issues immediately**: Do not attempt to proceed with tasks that require database access if connections are failing
+
+**Common Error**: `column users.onboarding_integration_step does not exist`
+
+If you see this error:
+- This indicates missing database schema or outdated migrations
+- Contact repository maintainer for proper setup instructions
+- **Do not proceed with code changes until database is properly configured**
+- Running code with an improperly configured database will lead to cascading errors
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
 
