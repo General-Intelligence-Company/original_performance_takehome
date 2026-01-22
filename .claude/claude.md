@@ -48,6 +48,19 @@ When creating PRs:
 3. Always include suggested PR title and description
 4. Confirm the branch has been pushed before attempting PR creation
 
+## Before Merging PRs
+
+**Always verify PR status first:**
+
+1. **Check if PR content already exists in main**: `git log --oneline main | grep <commit-hash>` or `git log --oneline main --grep="<PR-title>"`
+2. **Check if PR branch is stale**: `git merge-base main origin/<pr-branch>` and `git rev-list --count <merge-base>..main`
+3. **If content already exists in main**, close the PR instead of merging
+4. **If PR branch is significantly behind main** (>10 commits), consider if merge will cause regressions
+
+**Common mistake**: Merging stale PRs that would revert newer improvements or duplicate existing content.
+
+**Why this matters**: Pattern analysis detected 3 occurrences (90% confidence) of agents attempting to merge PRs without checking if the content already exists in main branch, leading to conflicts or redundant work.
+
 ## GitHub API Rate Limits
 
 1. **Check rate limit status** - Use `gh api rate_limit` to check current limits before operations
