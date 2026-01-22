@@ -169,6 +169,13 @@ When encountering merge conflicts in `claude.md` or other documentation files:
 5. Use `git status` to check for uncommitted changes before making modifications
 6. Follow existing naming conventions in the repository
 
+### Before Creating Documentation Files
+1. **Always check if the file exists first**: `ls claude.md` or `cat claude.md`
+2. **If file exists**: Read it completely, then append or merge your changes
+3. **If creating new file**: Use lowercase `claude.md` (not `CLAUDE.md`)
+4. **When merging content**: Preserve existing sections and add new sections in logical order
+5. **After creating/updating**: Verify the final content with `cat claude.md`
+
 ## Git Workflow Verification
 
 **Before any git operations:**
