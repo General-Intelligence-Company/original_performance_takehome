@@ -33,6 +33,16 @@ This prevents merge conflicts when multiple agents update documentation simultan
 4. **Test locally**: Run any relevant tests before marking complete
 5. **Document what was added**: Clearly state what sections/content were added
 
+## Safe Force Pushing
+
+When you need to force push (e.g., after rebasing or amending pushed commits):
+
+1. **Use --force-with-lease**: Always use `git push --force-with-lease` instead of `--force`
+2. **Why it matters**: Protects against overwriting commits pushed by others since your last fetch
+3. **Common scenarios**: After rebasing against main, amending commit messages, or squashing commits
+
+This prevents accidentally destroying other agents' work on shared branches.
+
 ## Before Creating Branches
 
 1. **Check repository permissions**: Can you push to main? Do you need to fork?
