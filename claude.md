@@ -19,18 +19,16 @@ This file provides guidance for AI coding agents working on this repository.
 
 ## ⚠️ CRITICAL: Database Prerequisites
 
-**Critical Error Pattern**: `column users.onboarding_integration_step does not exist`
+**Before any database operations:**
+1. Verify database connection and schema are properly configured
+2. **Known Issue**: If you encounter `column users.onboarding_integration_step does not exist`:
+   - This is a system-level database schema issue
+   - Contact system administrators for database migration
+   - Do NOT attempt to fix the schema yourself
+   - This error prevents agent execution entirely until resolved
+3. Wait for infrastructure team to resolve schema mismatches
 
-This error indicates missing database migrations and **prevents all agent operations**.
-
-**What to do:**
-1. **Stop all task execution immediately** - Do not continue with any coding tasks
-2. This is a **system-level infrastructure issue**, not a code problem
-3. **Contact administrators** to run required database migrations
-4. **Do NOT attempt to modify database schemas yourself** - This includes creating migrations, altering tables, or any schema changes
-5. Agent cannot proceed until this is resolved by the infrastructure team
-
-**Why this matters**: This error blocks all agent functionality and requires admin intervention. Attempting workarounds will cause cascading failures.
+**Why this matters**: Database schema issues are infrastructure problems that cannot be resolved at the agent level and require admin intervention.
 
 ## GitHub API Rate Limits
 
@@ -176,16 +174,9 @@ Before running the Claude Code agent:
 
 1. **Ensure database is properly initialized**: Verify all required tables exist
 2. **Run all database migrations**: Check that all migrations have been applied
-3. **Verify required columns**: Confirm the `users` table has all required columns including `onboarding_integration_step`
-4. **If database errors occur**: Contact system administrator to run database setup/migrations
+3. **Ensure environment variables are set**: Verify all necessary configuration is in place
 
-Before starting any coding task that involves database operations:
-
-1. **Verify database connectivity**: Check that required database columns exist
-2. **Ensure environment variables are set**: Verify all necessary configuration is in place
-3. **Test basic database operations**: Run a simple query to confirm the schema matches expectations
-
-**Common Error**: `column users.onboarding_integration_step does not exist` - This indicates a database schema mismatch. Before proceeding, verify the database schema is up to date with migrations.
+**Note**: For database schema errors (e.g., `column users.onboarding_integration_step does not exist`), see the **"⚠️ CRITICAL: Database Prerequisites"** section at the top of this file.
 
 ## Before Adding Documentation
 
