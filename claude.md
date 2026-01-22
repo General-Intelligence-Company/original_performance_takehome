@@ -463,28 +463,25 @@ If you see this error:
 
 **Why this matters**: Attempting to continue with broken database connections leads to cascading errors and wasted effort.
 
-## Documentation Updates
+## Before Requesting Documentation Updates
 
-### Before Adding Content
+**Always check existing content first:**
+1. Read current file: `cat claude.md` or view on GitHub
+2. Check recent commits: `git log --oneline -10 main -- claude.md`
+3. Review open/recent PRs: `gh pr list --search "docs"`
+4. Search for similar content: `grep -i "keyword" claude.md`
+5. If similar content exists, enhance it rather than creating duplicates
 
-1. Read the ENTIRE current documentation file
-2. Identify existing sections that might overlap with your planned addition
-3. If similar content exists, enhance it rather than duplicating
-4. If adding new content, ensure it complements existing structure
-5. After changes, verify the flow and organization make sense
+**Common topics already covered:**
+- Git workflow and pull-before-push guidance
+- Merge conflict prevention and resolution
+- Documentation best practices
+- File naming conventions
+- Branch management
+- PR creation/merging best practices
+- GitHub API rate limits
 
-**Tip**: Use `git show main:filename` to see the latest version before making changes
-
-### Preventing Duplicate PRs
-
-Before adding new documentation sections:
-
-1. **Check if similar content already exists in the file**: Read through `claude.md` completely and search for keywords related to your topic
-2. **Review recent PRs to see if the same documentation is being added**: Run `gh pr list --state all | grep -i "docs\|documentation\|claude"` to find related PRs
-3. **Search for existing branches with similar names**: Run `git branch -a | grep -i "docs/"` to find branches like `docs/git-workflow`, `docs/add-git-*`, etc.
-4. **If similar content exists, enhance it rather than creating duplicate sections**: Update the existing section with your improvements instead of adding a new one
-
-**Why this matters**: Multiple coding agent sessions often add similar git workflow documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
+**Why this matters**: Multiple coding agent sessions often add similar documentation sections with overlapping content. By checking first, you prevent redundant PRs and reduce maintenance burden.
 
 ## GitHub CLI Rate Limits
 
