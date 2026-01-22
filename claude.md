@@ -74,6 +74,16 @@ curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit
 
 **Why this matters**: Pattern analysis detected 10 occurrences (100% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
 
+## Before Starting Any Task
+
+**Always check existing state first:**
+1. Check if the branch already exists: `git branch -a | grep <branch-name>`
+2. Check if a PR already exists: `gh pr list` or search GitHub web interface
+3. For documentation updates, read the target file to see if the section already exists
+4. If the work is already done, acknowledge this instead of duplicating effort
+
+**Why**: Multiple agents may receive identical tasks, leading to duplicate work and conflicts.
+
 ## File Naming Conventions
 
 **Before creating documentation files**:
