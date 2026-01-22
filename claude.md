@@ -176,6 +176,17 @@ Before starting any task, explore the repository to understand its current state
 
 **Why this matters**: Agents often waste time creating PRs and documentation to fix problems that don't exist, because they assumed an issue without investigating first.
 
+## Finding Documentation Files
+
+**Before modifying documentation:**
+1. Search for existing documentation files: `find . -name "*.md" -type f` or use the search functionality
+2. Common locations include: `claude.md`, `AGENTS.md`, `.claude/claude.md`, `docs/` directory
+3. Check the repository structure first rather than assuming file locations
+
+**Don't assume:** File locations - different repositories may store documentation in different places.
+
+**Why this matters:** Agents that assume documentation exists at a specific path (like `.claude/claude.md`) may fail when the file is actually located elsewhere. Always verify the actual structure before making changes.
+
 ## Repository Assessment Checklist
 
 Before creating branches or making changes:
