@@ -112,6 +112,20 @@ Before modifying `claude.md` or other documentation:
 
 This prevents merge conflicts and reduces manual conflict resolution work.
 
+## Preventing Merge Conflicts in Documentation
+
+**Before creating any documentation PR:**
+1. Always pull latest: `git pull origin main`
+2. Check recent commits: `git log --oneline -5`
+3. Search for recent similar changes: `git log --oneline --grep="docs:" -10`
+4. If multiple documentation PRs are recent, coordinate changes or enhance existing PRs
+
+**During merge conflicts:**
+1. Use `git status` to identify conflicted files
+2. Look for `<<<<<<<` markers: `grep -n "^<<<<<<" claude.md`
+3. Preserve both valuable sections when merging
+4. Test that documentation flows logically after merge
+
 ## Database Prerequisites
 
 **Before any database operations:**
