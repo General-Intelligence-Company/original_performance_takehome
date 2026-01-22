@@ -200,14 +200,15 @@ When encountering merge conflicts:
 
 ## After Resolving Merge Conflicts
 
-**Always verify merged content before continuing:**
-1. Read the entire merged file: `cat filename`
-2. Check that sections flow logically and don't contradict each other
-3. Look for duplicate or redundant information that should be consolidated
-4. Ensure all conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) are removed
-5. Test that any commands or examples in the documentation still work
+**Always verify merged content:**
+1. Read entire merged file: `cat filename`
+2. Check sections flow logically without contradictions
+3. Look for duplicate or redundant information to consolidate
+4. Ensure all conflict markers are removed: `grep -n "<<<\|===\|>>>" filename`
+5. Test commands and examples still work
+6. Verify no content was accidentally deleted during resolution
 
-**Why**: Mechanical conflict resolution can create inconsistent or duplicate content. Always review the final result as a coherent whole.
+**Why**: Mechanical conflict resolution creates inconsistent or duplicate content.
 
 ## Branch Management
 
