@@ -75,6 +75,18 @@ Before creating branches or making changes:
 
 **Why**: Pattern analysis detected 7 occurrences (85% confidence) of agents creating branches and pushing without verifying repository permissions or understanding branch structure.
 
+## GitHub API Rate Limits
+
+**Before performing git operations:**
+1. Be aware that GitHub API has rate limits
+2. If you encounter 'API rate limit exceeded' errors, wait before retrying
+3. Use `gh auth status` to check authentication and rate limit status
+4. Consider using git commands directly instead of GitHub CLI when rate limited
+
+**Error Pattern**: If you see 'HTTP 403: API rate limit exceeded', pause operations and retry later.
+
+**Why this matters**: Pattern analysis detected 3 occurrences (95% confidence) of agents failing due to GitHub API rate limit exceeded errors when trying to perform git operations.
+
 ## Environment Setup
 
 Before running the Claude Code agent:
