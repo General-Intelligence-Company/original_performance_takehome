@@ -336,6 +336,22 @@ When encountering merge conflicts:
 6. Run `git rebase --continue` to complete the rebase
 7. Use `git push --force-with-lease` to update your branch safely
 
+## Git Rebase Conflict Resolution
+
+When rebasing against main (`git rebase origin/main`):
+
+### If Conflicts Occur
+1. **Don't panic**: Conflicts are normal when main has moved forward
+2. **Check conflict status**: Run `git status` to see conflicted files
+3. **Examine conflicts**: Look for conflict markers `<<<<<<<`, `=======`, `>>>>>>>`
+4. **Resolve systematically**:
+   - Keep content from both branches when possible
+   - Remove all conflict markers
+   - Ensure final content is coherent
+5. **Mark as resolved**: `git add <filename>`
+6. **Continue rebase**: `git rebase --continue`
+7. **Force push safely**: `git push --force-with-lease`
+
 ## Safe Force Pushing
 
 When you need to force push after a rebase, always use `git push --force-with-lease` instead of `git push --force`. This prevents accidentally overwriting commits that were pushed by others since your last fetch.
