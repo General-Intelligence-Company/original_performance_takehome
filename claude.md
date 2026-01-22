@@ -41,3 +41,14 @@ To get consistent performance measurements:
 3. Clear any cached state between runs if needed
 4. Document your current best result and the method used to achieve it
 5. Always verify correctness before measuring performance
+
+## File Naming
+
+When creating or modifying agent documentation files:
+
+1. **Always use lowercase `claude.md`** - not `CLAUDE.md` or other variations
+2. **Check if file exists first**: `ls | grep -i claude` to verify exact filename casing
+3. **Do not create duplicate files** - if `claude.md` exists, edit it rather than creating a new file
+4. **Use `find` for verification**: `find . -maxdepth 1 -iname "claude.md"` to find case-insensitive matches
+
+This prevents the common pattern where agents incorrectly create `CLAUDE.md` (uppercase) instead of using the existing `claude.md` (lowercase).
