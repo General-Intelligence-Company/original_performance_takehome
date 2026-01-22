@@ -109,7 +109,7 @@ Before starting any coding task that involves database operations:
 **Critical**: Always read the entire current claude.md file and verify content doesn't already exist before creating PRs.
 
 1. **Read the full file first**: Run `cat claude.md` or `git show main:claude.md` to see all current content
-2. **Check for existing sections**: Search for similar content that might already exist
+2. **Check for existing sections**: Search for similar content using `grep -i "keyword1\|keyword2" claude.md`
 3. **Avoid duplication**: If a section exists, enhance it rather than create a duplicate
 4. **Use consistent formatting**: Match existing markdown style and section hierarchy
 5. **Only create new sections**: When the content is genuinely missing from the file
