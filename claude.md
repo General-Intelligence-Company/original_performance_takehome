@@ -163,6 +163,18 @@ When encountering merge conflicts:
 
 When you need to force push after a rebase, always use `git push --force-with-lease` instead of `git push --force`. This prevents accidentally overwriting commits that were pushed by others since your last fetch.
 
+## When PR Merges Fail
+
+If GitHub API returns 405 errors or PRs show 'dirty' mergeable state:
+
+1. **Check PR status**: `gh pr view <number> --json mergeable,mergeStateStatus`
+2. **If conflicts exist, rebase the branch**: `git fetch origin main && git rebase origin/main`
+3. **Resolve any conflicts** following the conflict resolution steps above
+4. **Force push safely**: `git push --force-with-lease origin <branch>`
+5. **Only push directly to main as a last resort** when PR workflow is completely broken
+
+**Important**: Never push directly to main just because PR creation or merging failed. Always exhaust the PR workflow options first.
+
 ## Testing
 
 **Before running tests**:
