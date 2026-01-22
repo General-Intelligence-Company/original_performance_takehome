@@ -190,6 +190,8 @@ Before running the Claude Code agent:
 8. **Use descriptive, unique branch names** to avoid conflicts with concurrent work (e.g., `docs/add-X-guidelines-1737543000`)
 9. **Use consistent formatting**: Match existing markdown style and section hierarchy
 
+**Why**: Prevents duplicate sections and maintains documentation quality.
+
 **Common sections that already exist** (check before adding):
 - Git workflow, branch management, merge conflicts
 - File naming and management
