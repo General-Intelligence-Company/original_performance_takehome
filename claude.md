@@ -65,6 +65,13 @@ Before creating branches or making changes:
 
 ## Environment Setup
 
+Before running the Claude Code agent:
+
+1. **Ensure database is properly initialized**: Verify all required tables exist
+2. **Run all database migrations**: Check that all migrations have been applied
+3. **Verify required columns**: Confirm the `users` table has all required columns including `onboarding_integration_step`
+4. **If database errors occur**: Contact system administrator to run database setup/migrations
+
 Before starting any coding task that involves database operations:
 
 1. **Verify database connectivity**: Check that required database columns exist
