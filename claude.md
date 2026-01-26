@@ -151,6 +151,14 @@ Before executing database queries or operations:
 | Read existing content first | Overwrite without reading |
 | Merge content if duplicates exist | Keep duplicate files |
 
+## File Naming and Case Sensitivity
+
+**Always check file case before working with documentation:**
+- Run `ls -la | grep -i claude` to see all Claude-related files
+- This repository uses lowercase `claude.md` as the main documentation file
+- Avoid creating `CLAUDE.md` (uppercase) - use the existing `claude.md`
+- When in doubt, check `git ls-files | grep -i claude` to see tracked files
+
 ## Repository Exploration Checklist
 
 Before starting any task, explore the repository to understand its current state:
